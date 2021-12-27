@@ -1,0 +1,9 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Dec 15 14:00:41 2021
+
+@author: jvorsten
+"""
+
+[build-system]
+requires = ["setuptools ~= 58.0", "cython ~= 0.29.0"]
