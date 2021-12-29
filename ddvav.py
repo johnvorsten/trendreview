@@ -22,7 +22,6 @@ configurable location
 
 # Python imports
 from typing import List
-from itertools import filterfalse
 import inspect
 import math
 
@@ -32,19 +31,20 @@ import numpy as np
 
 # Local imports
 from FDDExceptions import FDDException
-from helpers import masked_consecutive_elements
-
+from helpers import (masked_consecutive_elements, 
+                     read_csv,
+                     _datetimes_to_seconds_deviation_from_start,
+                     _hour_segment_indices_from_seconds)
 # Declarations
-DDVAV_HEADERS = ['Date', 'Time', 'DischargeTemperature', 'CoolingDamperCommand',
-                 'CooingDamperPosition', 'CoolingAirVolume', 'CoolingSetpoint',
+DDVAV_HEADERS = ['DateTime', 'DischargeTemperature', 'CoolingDamperCommand',
+                 'CoolingDamperPosition', 'CoolingAirVolume', 'CoolingSetpoint',
                  'ControlTemperature', 'ScheduleMode', 'OccupancyMode',
                  'HeatCoolMode', 'HeatingDamperCommand', 'HeatingDamperPosition',
                  'HeatingAirVolume', 'RoomTemperature', 'AirflowSetpoint']
-DDVAV_TYPES = {'Date':object, 
-               'Time':str, 
+DDVAV_TYPES = {'DateTime':object, 
                'DischargeTemperature':np.float32, 
                'CoolingDamperCommand':np.float32,
-               'CooingDamperPosition':np.float32, 
+               'CoolingDamperPosition':np.float32, 
                'CoolingAirVolume':np.float32, 
                'CoolingSetpoint':np.float32,
                'ControlTemperature':np.float32, 
@@ -76,7 +76,26 @@ def maximum_allowed_failures(mask: np.ma.MaskedArray,
              "exceeded ({} observed)")
         msg = error_msg + "\n" + gmsg
         msg=msg.format(max_failures, failure_percent, mask.sum())
+        data_view['primary_axis_label'] = report_columns[0]
+        data_view['dependent_axis_labels'] = report_columns[1:]
         raise FDDException(msg, data_view)
+            
+    return None
+
+def failure_threshold_exceeded(data: pd.DataFrame,
+                               report_columns: List[str],
+                               report_indices: List[int],
+                               error_msg:str) -> None:
+    """Raise a FDDException if the calculated threshold of failures is
+    exceeded
+    Useful for calculated thresholds (total sum, integration, etc.)"""
+    
+    data_view = data.loc[report_indices, report_columns].to_dict(orient='list')
+    gmsg=("Failure threshold exceeded")
+    msg = error_msg + "\n" + gmsg
+    data_view['primary_axis_label'] = report_columns[0]
+    data_view['dependent_axis_labels'] = report_columns[1:]
+    raise FDDException(msg, data_view)
             
     return None
 
@@ -94,6 +113,8 @@ def maximum_consecutive_failures(mask: np.ma.MaskedArray,
               "({} observed)")
         msg = error_msg + "\n" + gmsg
         msg=msg.format(failure_consecutive, len(consecutive_indices))
+        data_view['primary_axis_label'] = report_columns[0]
+        data_view['dependent_axis_labels'] = report_columns[1:]
         raise FDDException(msg, data_view)
             
     return None
@@ -102,11 +123,14 @@ class DDVAVRules:
     """Collection of rules to check on trended data for dual-duct terminal
     units"""
     
-    def __init__(self):
+    def __init__(self, filepath: str):
         """Inputs
         ------
         filepath: (string) name of CSV file related to a dual-duct terminal
         unit to open, parse, and apply rule checks to"""
+        
+        self.csv_filepath = filepath
+        self.data = read_csv(self.csv_filepath, DDVAV_HEADERS, DDVAV_TYPES)
         
         return None
     
@@ -115,7 +139,11 @@ class DDVAVRules:
         methods = self._get_rules()
         # Iterate through each 'rule_' method and call it
         for method in methods:
-            method()
+            method(self.data)
+        return None
+    
+    def evaluate_rules(self):
+        self.__call__()
         return None
     
     def _get_rules(self):
@@ -151,7 +179,7 @@ class DDVAVRules:
         max_overlap = math.floor(failure_percent * len(heating))
         if overlap.sum() > max_overlap:
             report_indices = overlap_indices[0][:max_overlap]
-            data_view = data.loc[report_indices, ["Date","Time","HeatingAirVolume","CoolingAirVolume"]].to_dict(orient='list')
+            data_view = data.loc[report_indices, ["DateTime","HeatingAirVolume","CoolingAirVolume"]].to_dict(orient='list')
             msg=("The maximum allowed instances of simultaneous heating and "+
                  "cooling ({} at {:.0%} of samples) was exceeded ({} observed)")
             msg=msg.format(max_overlap, failure_percent, overlap.sum())
@@ -161,7 +189,7 @@ class DDVAVRules:
         consecutive_indices = masked_consecutive_elements(overlap, failure_consecutive)
         if len(consecutive_indices) > 0:
             report_indices = consecutive_indices
-            data_view = data.loc[report_indices, ["Date","Time","HeatingAirVolume","CoolingAirVolume"]].to_dict(orient='list')
+            data_view = data.loc[report_indices, ["DateTime","HeatingAirVolume","CoolingAirVolume"]].to_dict(orient='list')
             msg=("The maximum allowed consecutive instances of heating and "+
                  "cooling ({}) was exceeded ({} observed)")
             msg=msg.format(failure_consecutive, len(consecutive_indices))
@@ -181,7 +209,7 @@ class DDVAVRules:
         tolerance = 10
         failure_percent = 0.02
         failure_consecutive = 3
-        report_columns = ["Date","Time","HeatingAirVolume","HeatCoolMode"]
+        report_columns = ["DateTime","HeatingAirVolume","HeatCoolMode"]
         
         # masking and comparisons
         heating = np.ma.array(data["HeatingAirVolume"] > tolerance)
@@ -223,7 +251,7 @@ class DDVAVRules:
         tolerance = 10
         failure_percent = 0.02
         failure_consecutive = 3
-        report_columns = ["Date","Time","CoolingAirVolume","HeatCoolMode"]
+        report_columns = ["DateTime","CoolingAirVolume","HeatCoolMode"]
         
         # masking and comparisons
         cooling = np.ma.array(data["CoolingAirVolume"] > tolerance)
@@ -263,7 +291,7 @@ class DDVAVRules:
         tolerance = 5
         failure_percent = 0.02
         failure_consecutive = 3
-        report_columns = ["Date","Time","CoolingDamperCommand",
+        report_columns = ["DateTime","CoolingDamperCommand",
                           "CoolingDamperPosition"]
         error_msg=("Cooling damper stuck open: damper command and position "+
                    "are >5% different")
@@ -290,7 +318,7 @@ class DDVAVRules:
         tolerance = 5
         failure_percent = 0.02
         failure_consecutive = 3
-        report_columns = ["Date","Time","HeatingDamperCommand",
+        report_columns = ["DateTime","HeatingDamperCommand",
                           "HeatingDamperPosition"]
         error_msg=("Heating damper stuck open: damper command and position "+
                    "are >5% different")
@@ -319,7 +347,7 @@ class DDVAVRules:
         tolerance_damper = 2 # percent
         failure_percent = 0.02
         failure_consecutive = 3
-        report_columns = ["Date","Time","CoolingAirVolume","CoolingDamperPosition"]
+        report_columns = ["DateTime","CoolingAirVolume","CoolingDamperPosition"]
         error_msg=("Airflow measured while damper is closed:")
         
         # masking and comparisons
@@ -347,7 +375,7 @@ class DDVAVRules:
         tolerance_damper = 2 # percent
         failure_percent = 0.02
         failure_consecutive = 3
-        report_columns = ["Date","Time","HeatingAirVolume","HeatingDamperPosition"]
+        report_columns = ["DateTime","HeatingAirVolume","HeatingDamperPosition"]
         error_msg=("Airflow measured while damper is closed:")
         
         # masking and comparisons
@@ -356,17 +384,54 @@ class DDVAVRules:
         mask = np.bitwise_and(airflow, damper_closed) # masked array
         
         # Failure condition n% of ovservations
-        maximum_allowed_failures(mask, data, failure_percent, report_columns, error_msg)
+        maximum_allowed_failures(mask, data, failure_percent, 
+                                 report_columns, error_msg)
         
         # Failure condition n consecutive observations
-        maximum_consecutive_failures(mask, data, failure_consecutive, report_columns, error_msg)
+        maximum_consecutive_failures(mask, data, failure_consecutive, 
+                                     report_columns, error_msg)
         
         return None
         
     @classmethod
     def rule_damper_position_airflow_relationship(cls, data: pd.DataFrame):
+        """Not implemented
+        Ideally, understand the relationship between damper position and 
+        calculated airflow. The intention is find misconfigured or backwards
+        mounted actuators. However, controls can configure reverse or direct
+        acting control, and increasing damper command may not correspond to
+        increasing airflow. This rule is not implemented."""
         return None
             
     @classmethod
     def rule_room_temperature_deviation(cls, data: pd.DataFrame):
+        """Test for room temperature ability to reach setpoint
+        Rule fails if - 
+        1. room temperature deviates from control setpoint as measured by 
+        integral of measured temperature versus setpoint by > 1 Degree*hour per 
+        hour measured"""
+        # Tolerance for considering airflow at zero
+        failure_threshold = 1 # [Degree * hour]
+        report_columns = ["DateTime","ControlTemperature","RoomTemperature"]
+        error_msg=("Excessive deviation in process variable versus setpoint. "+
+                   "{} DegF*hour calculated deviation during hour long " +
+                   "measurement period; threshold={}")
+        
+        # Break into hour segments
+        seconds = _datetimes_to_seconds_deviation_from_start(data["DateTime"])
+        segments = _hour_segment_indices_from_seconds(seconds)
+        
+        # summation
+        for segment in segments: 
+            # Calculate temperature deviation
+            diff = data.loc[segment, "ControlTemperature"].to_numpy() - data.loc[segment, "RoomTemperature"].to_numpy()
+            deviation = np.trapz(y=diff, x=seconds[segment]) / 3600
+            # Error determination
+            if deviation > failure_threshold:
+                failure_threshold_exceeded(
+                    data, report_columns, 
+                    report_indices=segment, 
+                    error_msg=error_msg.format(deviation, failure_threshold)
+                    )
+        
         return None

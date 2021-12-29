@@ -6,7 +6,9 @@ Created on Mon Dec 27 15:39:47 2021
 """
 
 # Python imports
-from Typing import List
+from typing import List, Iterable
+from datetime import datetime
+from copy import deepcopy
 
 # Thrid party imports
 import numpy as np
@@ -22,8 +24,33 @@ def read_csv(filepath, headers, dtypes):
     This method enforces datatypes and headers for the input CSV file
     format"""
     df = pd.read_csv(filepath, sep=',', usecols=headers,
-                     parse_dates=['Date'], dtype=dtypes)
+                     parse_dates=['DateTime'], dtype=dtypes)
     return df
+
+def _parse_date_time_str_YmdHM(dates: Iterable[str], times: Iterable[str]) -> List[datetime]:
+    """Parse incomplete ISO times in the format H:MM:SS to HH:MM:SS as a 
+    python time datetime.time object
+    inputs
+    -------
+    dates: (list) of strings representing date in format %Y-%m-%d
+    times: (list) of strings representing time in format %H:%M"""
+    iso_times = []
+    for date_str, time_str in zip(dates, times):
+        iso_times.append(datetime.strptime(date_str + time_str, "%Y-%m-%d%H:%M"))
+    
+    return iso_times
+
+def _correct_time_str_HM(times: Iterable[str]) -> List[str]:
+    """Parse incomplete ISO times in the format H:MM to HH:MM as a 
+    python time datetime.time object"""
+    iso_times = []
+    for time_str in times:
+        if len(time_str) == 4:
+            iso_times.append("0" + time_str)
+        else:
+            iso_times.append(time_str)
+            
+    return iso_times
 
 def masked_consecutive_elements(data: np.ma.MaskedArray, n_consecutive_elements: int) -> List[int]:
     """Return indices where a masked array is True for n_consecutive_elements
@@ -65,3 +92,65 @@ def masked_rolling_sum(data: np.ma.MaskedArray, n_consecutive_elements: int):
         window_sum[i] = np.sum(data[i:n_consecutive_elements])
     
     return np.where(window_sum == n_consecutive_elements)
+
+def _datetimes_to_seconds_deviation_from_start(datetimes: Iterable[datetime]) -> np.array:
+    """Given an iterable of datetime objects, return an equally sized numpy
+    array where each element in the array is the number of seconds deviation 
+    from the first element in the datetime iterable
+    Assumes all datetimes are ascending order
+    inputs
+    -------
+    datetime: (iterable) of datetime / pd.DateTime"""
+    
+    time_delta = np.empty((len(datetimes)))
+    for i in range(0, len(time_delta)):
+        time_delta[i] = (datetimes[i] - datetimes[0]).seconds
+        
+    return time_delta
+
+def _hour_segment_indices_from_seconds(seconds: Iterable[int]) -> List[List[int]]:
+    """Given an iterable of datetime elements, yield sequential list of indices
+    that fall within a hour window
+    inputs
+    ------
+    datetimes: (iterable) of integers representing seconds
+    Example
+    seconds = [0,900,2700,4500,8100] # [0,5,45,75,135] minutes
+    res = _hour_segment_indices_from_seconds(seconds)
+    >>> res # [[0,1,2],[3],[4]]
+    """
+    previous_hour = 0
+    indices = []
+    segment = []
+
+    for i in range(0, len(seconds)):
+        if seconds[i] - seconds[previous_hour] >= 3600:
+            indices.append(deepcopy(segment))
+            segment.clear()
+            segment.append(i)
+            previous_hour = i
+        else:
+            segment.append(i)
+    
+    if len(indices) == 0:
+        # nothing got appended to indices
+        indices.append(segment)
+        
+    # Handle the last element
+    try:
+        last_element = indices[-1][-1]
+    except IndexError:
+        indices[-1].append(i)
+        return indices
+    
+    if last_element == len(seconds):
+        # The last time segment was exactly an hour
+        return indices
+    else:
+        # The last time segment was not a full hour
+        indices[-1].append(i)
+        
+    return indices
+
+seconds = [0,900,2700,4500,8100]
+res = _hour_segment_indices_from_seconds(seconds)

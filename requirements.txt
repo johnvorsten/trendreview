@@ -29,5 +29,5 @@ wrapt==1.12.1
 urllib3==1.26.7
 webencodings==0.5.1
 Sphinx==4.2.0
-
+matplotlib==3.5.0
 
