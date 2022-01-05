@@ -168,7 +168,8 @@ class DDVAVRules:
         tolerance = 10
         failure_percent = 0.02
         failure_consecutive = 3
-        
+        report_columns = ["DateTime","HeatingAirVolume","CoolingAirVolume"]
+
         # masking and comparisons
         heating = np.ma.array(data["HeatingAirVolume"] > tolerance)
         cooling = np.ma.array(data["CoolingAirVolume"] > tolerance)
@@ -180,6 +181,8 @@ class DDVAVRules:
         if overlap.sum() > max_overlap:
             report_indices = overlap_indices[0][:max_overlap]
             data_view = data.loc[report_indices, ["DateTime","HeatingAirVolume","CoolingAirVolume"]].to_dict(orient='list')
+            data_view['primary_axis_label'] = report_columns[0]
+            data_view['dependent_axis_labels'] = report_columns[1:]
             msg=("The maximum allowed instances of simultaneous heating and "+
                  "cooling ({} at {:.0%} of samples) was exceeded ({} observed)")
             msg=msg.format(max_overlap, failure_percent, overlap.sum())
@@ -190,6 +193,8 @@ class DDVAVRules:
         if len(consecutive_indices) > 0:
             report_indices = consecutive_indices
             data_view = data.loc[report_indices, ["DateTime","HeatingAirVolume","CoolingAirVolume"]].to_dict(orient='list')
+            data_view['primary_axis_label'] = report_columns[0]
+            data_view['dependent_axis_labels'] = report_columns[1:]
             msg=("The maximum allowed consecutive instances of heating and "+
                  "cooling ({}) was exceeded ({} observed)")
             msg=msg.format(failure_consecutive, len(consecutive_indices))

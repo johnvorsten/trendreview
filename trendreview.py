@@ -27,7 +27,8 @@ parser.add_argument('--filepath', type=os.path.abspath,
 parser.add_argument('--type', type=str,
                     choices=SUPPORTED_EQUIPMENT, required=True,
                     dest='type',
-                    help='Type of mechanical equipment being trended. Must be one of {}'.format(SUPPORTED_EQUIPMENT))
+                    help=('Type of mechanical equipment being trended. Must '+
+                    'be one of {}'.format(SUPPORTED_EQUIPMENT)))
 parser.add_argument('--report-path', type=argparse.FileType('w', encoding='utf-8'),
                     required=False, default='./report.txt',
                     dest='log_filepath',

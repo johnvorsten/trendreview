@@ -9,6 +9,8 @@ Created on Thu Dec 16 16:29:57 2021
 from itertools import filterfalse
 import inspect
 import unittest
+import os
+from datetime import datetime
 
 # Third party imports
 import pandas as pd
@@ -18,20 +20,24 @@ import numpy as np
 from ddvav import (DDVAVRules, DDVAV_TYPES, DDVAV_HEADERS)
 from helpers import (read_csv, masked_consecutive_elements, 
                      _datetimes_to_seconds_deviation_from_start)
+from FDDExceptions import FDDException
 
 # Read file into pandas dataframe
+# Relative to project root (not relative to __file__)
 FILEPATH = './data/DD03.csv'
 FILEPATH2 = './data/dd64.csv'
+FILEPATH3 = './data/ddvav_test.csv'
 
 #%%
-
-
-
 
 class TestDDVAV(unittest.TestCase):
     
     def setUp(self):
-        data = data = read_csv(FILEPATH, DDVAV_HEADERS, DDVAV_TYPES)
+        
+        self.data = read_csv(FILEPATH, DDVAV_HEADERS, DDVAV_TYPES)
+        self.data3 = read_csv(FILEPATH3, DDVAV_HEADERS, DDVAV_TYPES)
+        self.ddvavRules = DDVAVRules(FILEPATH3)
+        
         return None
     
     def test_masked_consecutive_elements(self):
@@ -67,12 +73,13 @@ class TestDDVAV(unittest.TestCase):
         diff = np.array(control) - np.array(process)
         
         # Prepare datetime to integrate over
-        datetimes = np.array(['2021-12-18T10:00:00', 
+        nptimes = np.array(['2021-12-18T10:00:00', 
                               '2021-12-18T10:05:00', # 5 minute interval
                               '2021-12-18T10:10:00',
                               '2021-12-18T10:20:00', # 10 minute interval
                               '2021-12-18T10:35:00', # 15 minute interval
                               ], dtype='datetime64[s]')
+        datetimes = [datetime.strptime(str(x), "%Y-%m-%dT%H:%M:%S") for x in nptimes]
         xs = _datetimes_to_seconds_deviation_from_start(datetimes)
         
         # Integrations
@@ -83,3 +90,57 @@ class TestDDVAV(unittest.TestCase):
         deviation_equ = np.trapz(y=diff, x=[0,5,10,20,35]) # 17.5
         
         return None
+    
+    def test_get_methods(self):
+        
+        methods = self.ddvavRules._get_rules()
+        for method in methods:
+            self.assertTrue(str(method).__contains__("rule_"))
+            
+        return None
+    
+    def test_rule_simultaneous_heating_cooling(self):
+        
+        with self.assertRaises(FDDException):
+            self.ddvavRules.rule_simultaneous_heating_cooling(self.data3)
+            
+        return None
+    
+    def test_rule_cooling_airflow_on_closed_damper(self):
+        return None
+    
+    def test_rule_heating_airflow_on_closed_damper(self):
+        return None
+    
+    def test_rule_cooling_damper_stuck(self):
+        return None
+    
+    def test_rule_cooling_opposed_mode(self):
+        return None
+    
+    def test_rule_heating_damper_stuck(self):
+        return None
+    
+    def test_rule_heating_opposed_mode(self):
+        return None
+    
+    def test_rule_room_temperature_deviation(self):
+        return None
+    
+    def test_(self):
+        return None
+    
+    def test_(self):
+        return None
+
+if __name__ == '__main__':
+    unittest.main()
+    
+    # Alternate methods
+    # def suite():
+    #     suite = unittest.TestSuite()
+    #     suite.addTest(TestDDVAV('test_rule_simultaneous_heating_cooling'))
+    #     suite.addTest(TestDDVAV('test_rule_room_temperature_deviation'))
+    #     return suite
+    # runner = unittest.TextTestRunner()
+    # runner.run(suite())
