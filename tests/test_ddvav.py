@@ -96,7 +96,7 @@ class TestDDVAV(unittest.TestCase):
     
     def test_get_methods(self):
         
-        methods = self.ddvavRules._get_rules()
+        methods = self.ddvavRules.get_rules()
         for method in methods:
             self.assertTrue(str(method).__contains__("rule_"))
             

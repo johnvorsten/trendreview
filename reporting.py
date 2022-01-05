@@ -55,13 +55,20 @@ class FDDImageGeneration:
         fig, ax = plt.subplots(1,1)
         # Set axes x and y label
         ax.set_xlabel(independent_label)
-        ax.set_ylabel(dependent_labels[0])
+        ylabel = str()
+        for label in dependent_labels:
+            ylabel += ", " + label
+        ax.set_ylabel(ylabel)
         # Set data
         for dependent_label in dependent_labels:
             ys = data[dependent_label]
             lines = ax.plot(x_data, ys, label=dependent_label)
         
         ax.legend()
+        # Rotate all dates on x axis
+        labels = ax.xaxis.get_majorticklabels()
+        for label in labels:
+            label.set_rotation(45)
         
         return fig
     
@@ -69,7 +76,8 @@ class FDDImageGeneration:
         
         filename = (self.save_directory + os.sep + self.base_imgname + 
                     str(self.image_number) + "." + self.img_format)
-        fig.savefig(filename, dpi='figure', format=self.img_format)
+        fig.savefig(filename, dpi='figure', format=self.img_format,
+                    bbox_inches='tight')
         self.image_number += 1
         
         return None
@@ -120,7 +128,9 @@ class FDDReporting:
             f.write("Issue #" + str(self.log_index) + '\n')
             f.write(exception.message + '\n')
             if create_image:
-                f.write("See image #" + str(self.imageGenerator.image_number) + '\n')
+                f.write("See figure" + 
+                        str(self.imageGenerator.image_number - 1) 
+                        + '.png\n')
             f.write('\n\n')
 
         

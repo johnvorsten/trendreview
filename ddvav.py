@@ -21,7 +21,7 @@ configurable location
 """
 
 # Python imports
-from typing import List
+from typing import List, Callable
 import inspect
 import math
 
@@ -31,6 +31,7 @@ import numpy as np
 
 # Local imports
 from FDDExceptions import FDDException
+from reporting import FDDReporting
 from helpers import (masked_consecutive_elements, 
                      read_csv,
                      _datetimes_to_seconds_deviation_from_start,
@@ -107,12 +108,14 @@ def maximum_consecutive_failures(mask: np.ma.MaskedArray,
     
     consecutive_indices = masked_consecutive_elements(mask, failure_consecutive)
     if len(consecutive_indices) > 0:
-        report_indices = consecutive_indices
+        report_indices = np.arange(max(0, consecutive_indices[0] - 10), 
+                                   min(consecutive_indices[0] + 10, data.shape[0]), 
+                                   step=1, dtype=int)
         data_view = data.loc[report_indices, report_columns].to_dict(orient='list')
         gmsg=("The maximum allowed consecutive instances ({}) was exceeded "+
-              "({} observed)")
+              "starting at data indices {}")
         msg = error_msg + "\n" + gmsg
-        msg=msg.format(failure_consecutive, len(consecutive_indices))
+        msg=msg.format(failure_consecutive, consecutive_indices)
         data_view['primary_axis_label'] = report_columns[0]
         data_view['dependent_axis_labels'] = report_columns[1:]
         raise FDDException(msg, data_view)
@@ -134,19 +137,27 @@ class DDVAVRules:
         
         return None
     
-    def __call__(self):
-        # Get all methods that start with 'rule_'
-        methods = self._get_rules()
-        # Iterate through each 'rule_' method and call it
+    def evaluate_rules(self, methods: List[Callable[[pd.DataFrame],None]], 
+                       reporter: FDDReporting) -> None:
+        """This is a convenience function which calls each of the methods
+        passed to it, and catches FDDExceptions thrown by each rule, then logs
+        the exceptions
+        
+        Example
+        ddvavRules = DDVAVRules(filepath)
+        methods = ddvavRules.get_rules()
+        reporter = FDDReporting(log_filepath=log_filepath)
+        ddvavRules.evaluate_rules(methods, reporter)
+        # Results of faults detected in `filepath`
+        """
         for method in methods:
-            method(self.data)
+            try:
+                method(self.data)
+            except FDDException as e:
+                reporter.log_exception(e, create_image=True)
         return None
     
-    def evaluate_rules(self):
-        self.__call__()
-        return None
-    
-    def _get_rules(self):
+    def get_rules(self):
         """Get all class member functions that start with 'rule_'"""
         
         methods = []
@@ -394,7 +405,7 @@ class DDVAVRules:
         failure_threshold = 1 # [Degree * hour]
         report_columns = ["DateTime","ControlTemperature","RoomTemperature"]
         error_msg=("Excessive deviation in process variable versus setpoint. "+
-                   "{} DegF*hour calculated deviation during hour long " +
+                   "{:.2f} DegF*hour calculated deviation during hour long " +
                    "measurement period; threshold={}")
         
         # Break into hour segments
@@ -411,7 +422,7 @@ class DDVAVRules:
                 failure_threshold_exceeded(
                     data, report_columns, 
                     report_indices=segment, 
-                    error_msg=error_msg.format(deviation, failure_threshold)
+                    error_msg=error_msg.format(abs(deviation), failure_threshold)
                     )
         
         return None

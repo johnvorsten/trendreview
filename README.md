@@ -28,5 +28,11 @@ DischargeTemperature[degrees Fahrenehit]: (numeric) measured discharge air tempe
 CoolingDamperCommand: (numeric) data type, ranging from 0-100. Percentage inputs might not be supported
 CoolingDamperPosition: (numeric) data type, ranging from 0-100. Percentage inputs might not be supported
 
+## Installation
+Run `pip3 install trendreview`
+
+## Usage example
+
+
 ## Testing
 from project root (trendreview) at the terminal: `python -m unittest discover tests "test_*.py"`

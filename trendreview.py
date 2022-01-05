@@ -40,8 +40,8 @@ parser.add_argument('--report-path', type=argparse.FileType('w', encoding='utf-8
 
 def test_parse_args():
     
-    filepath = './data/DD03.csv'
-    args = ['--filepath', filepath, '--type', 'ddvav']
+    filepath = './data/ddvav_test.csv'
+    args = ['--filepath', filepath, '--type', 'ddvav', '--report-path', './custom-report.txt']
     namespace = parser.parse_args(args)
     filepath = os.path.abspath(namespace.filepath)
     equipment_type = namespace.type
@@ -62,9 +62,14 @@ if __name__ == '__main__':
     
     # Review data and run report
     reporter = FDDReporting(log_filepath=log_filepath)
+    
     if equipment_type == 'ddvav':
-        try:
-            DDVAVRules(filepath)
-        except FDDException as e:
-            reporter.log_exception(e, create_image=True)
+        ddvavRules = DDVAVRules(filepath)
+        methods = ddvavRules.get_rules()
+        for method in methods:
+            try:
+                method(ddvavRules.data)
+            except FDDException as e:
+                reporter.log_exception(e, create_image=True)
+        
     
