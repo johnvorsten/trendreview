@@ -23,8 +23,6 @@ FILEPATH2 = './data/dd64.csv'
 
 #%%
 
-
-
 def test_date_time_iterables_to_numpy():
     
     data = read_csv(FILEPATH, DDVAV_HEADERS, DDVAV_TYPES)

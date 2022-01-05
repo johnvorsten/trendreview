@@ -215,33 +215,21 @@ class DDVAVRules:
         failure_percent = 0.02
         failure_consecutive = 3
         report_columns = ["DateTime","HeatingAirVolume","HeatCoolMode"]
+        error_msg=("Cooling occurs with the incorrect state in HeatCoolMode "+
+                   "HeatingAirVolume > 0 when HeatCoolMode is in 'COOL'")
         
         # masking and comparisons
         heating = np.ma.array(data["HeatingAirVolume"] > tolerance)
         cooling_mode = np.ma.array(data["HeatCoolMode"] == "COOL")
-        overlap = np.bitwise_and(heating, cooling_mode) # masked array
-        overlap_indices = overlap.nonzero()
-        
-        # Failure condition n% ofovservations
-        max_overlap = math.floor(failure_percent * len(heating))
-        if overlap.sum() > max_overlap:
-            report_indices = overlap_indices[0][:max_overlap]
-            data_view = data.loc[report_indices, report_columns].to_dict(orient='list')
-            msg=("The maximum allowed instances of heating in cooling mode "+
-                 "({} at {:.0%} of samples) was exceeded ({} observed)")
-            msg=msg.format(max_overlap, failure_percent, overlap.sum())
-            raise FDDException(msg, data_view)
+        mask = np.bitwise_and(heating, cooling_mode) # masked array
+        # overlap_indices = overlap.nonzero()
+            
+        # Failure condition n% of ovservations
+        maximum_allowed_failures(mask, data, failure_percent, report_columns, error_msg)
         
         # Failure condition n consecutive observations
-        consecutive_indices = masked_consecutive_elements(overlap, failure_consecutive)
-        if len(consecutive_indices) > 0:
-            report_indices = consecutive_indices
-            data_view = data.loc[report_indices, report_columns].to_dict(orient='list')
-            msg=("The maximum allowed consecutive instances of heating and "+
-                 "cooling ({}) was exceeded ({} observed)")
-            msg=msg.format(failure_consecutive, len(consecutive_indices))
-            raise FDDException(msg, data_view)
-            
+        maximum_consecutive_failures(mask, data, failure_consecutive, report_columns, error_msg)
+                
         return None
     
     @classmethod
@@ -257,32 +245,19 @@ class DDVAVRules:
         failure_percent = 0.02
         failure_consecutive = 3
         report_columns = ["DateTime","CoolingAirVolume","HeatCoolMode"]
-        
+        error_msg=("Cooling occurs with the incorrect state in HeatCoolMode "+
+                   "CoolingAirVolume > 0 when HeatCoolMode is in 'HEAT'")
         # masking and comparisons
         cooling = np.ma.array(data["CoolingAirVolume"] > tolerance)
         heating_mode = np.ma.array(data["HeatCoolMode"] == "HEAT")
-        overlap = np.bitwise_and(cooling, heating_mode) # masked array
-        overlap_indices = overlap.nonzero()
+        mask = np.bitwise_and(cooling, heating_mode) # masked array
+        # overlap_indices = overlap.nonzero()
         
-        # Failure condition n% ofovservations
-        max_overlap = math.floor(failure_percent * len(cooling))
-        if overlap.sum() > max_overlap:
-            report_indices = overlap_indices[0][:max_overlap]
-            data_view = data.loc[report_indices, report_columns].to_dict(orient='list')
-            msg=("The maximum allowed instances of heating in cooling mode "+
-                 "({} at {:.0%} of samples) was exceeded ({} observed)")
-            msg=msg.format(max_overlap, failure_percent, overlap.sum())
-            raise FDDException(msg, data_view)
+        # Failure condition n% of ovservations
+        maximum_allowed_failures(mask, data, failure_percent, report_columns, error_msg)
         
         # Failure condition n consecutive observations
-        consecutive_indices = masked_consecutive_elements(overlap, failure_consecutive)
-        if len(consecutive_indices) > 0:
-            report_indices = consecutive_indices
-            data_view = data.loc[report_indices, report_columns].to_dict(orient='list')
-            msg=("The maximum allowed consecutive instances of heating and "+
-                 "cooling ({}) was exceeded ({} observed)")
-            msg=msg.format(failure_consecutive, len(consecutive_indices))
-            raise FDDException(msg, data_view)
+        maximum_consecutive_failures(mask, data, failure_consecutive, report_columns, error_msg)
             
         return None
     
@@ -432,7 +407,7 @@ class DDVAVRules:
             diff = data.loc[segment, "ControlTemperature"].to_numpy() - data.loc[segment, "RoomTemperature"].to_numpy()
             deviation = np.trapz(y=diff, x=seconds[segment]) / 3600
             # Error determination
-            if deviation > failure_threshold:
+            if abs(deviation) > failure_threshold:
                 failure_threshold_exceeded(
                     data, report_columns, 
                     report_indices=segment, 

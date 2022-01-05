@@ -89,6 +89,9 @@ class TestDDVAV(unittest.TestCase):
         # Defined time interval in minutes
         deviation_equ = np.trapz(y=diff, x=[0,5,10,20,35]) # 17.5
         
+        self.assertEqual(deviation_time.seconds, 1050)
+        self.assertEqual(deviation_equ, 17.5)
+        
         return None
     
     def test_get_methods(self):
@@ -107,24 +110,46 @@ class TestDDVAV(unittest.TestCase):
         return None
     
     def test_rule_cooling_airflow_on_closed_damper(self):
+        # Data row 20-26
+        with self.assertRaises(FDDException):
+            self.ddvavRules.rule_cooling_airflow_on_closed_damper(self.data3)
+            
         return None
     
     def test_rule_heating_airflow_on_closed_damper(self):
+        # Data row 27-32
+        with self.assertRaises(FDDException):
+            self.ddvavRules.rule_heating_airflow_on_closed_damper(self.data3)
         return None
     
     def test_rule_cooling_damper_stuck(self):
-        return None
-    
-    def test_rule_cooling_opposed_mode(self):
+        # Data row 39-46
+        with self.assertRaises(FDDException):
+            self.ddvavRules.rule_cooling_damper_stuck(self.data3)
         return None
     
     def test_rule_heating_damper_stuck(self):
+        # Data row 33-38
+        with self.assertRaises(FDDException):
+            self.ddvavRules.rule_heating_damper_stuck(self.data3)
+        return None
+    
+    def test_rule_cooling_opposed_mode(self):
+        # Data row 50-59
+        with self.assertRaises(FDDException):
+            self.ddvavRules.rule_cooling_opposed_mode(self.data3)
         return None
     
     def test_rule_heating_opposed_mode(self):
+        # Data row 60-69
+        with self.assertRaises(FDDException):
+            self.ddvavRules.rule_heating_opposed_mode(self.data3)
         return None
     
     def test_rule_room_temperature_deviation(self):
+        # Data row 74-86
+        with self.assertRaises(FDDException):
+            self.ddvavRules.rule_room_temperature_deviation(self.data3)
         return None
     
     def test_(self):
