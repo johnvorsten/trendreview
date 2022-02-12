@@ -1,0 +1,2 @@
+﻿DateTime,SupplyAirTemperature,SupplyAirTemperatureSetpoint,MixedAirTemperature,ReturnAirTemperature,OutdoorAirTemperature,DuctStaticPressure,DuctStaticPressureSetpoint,HeatingCoilCommand,CoolingCoilCommand,FanSpeedCommand,CoolingCoilEnteringTemperature,CoolingCoilLeavingTemperature,HeatingCoilEnteringTemperature,HeatingCoilLeavingTemperature
+2021-11-19T00:00,,,,,,,,,,,,,,

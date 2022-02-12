@@ -9,12 +9,14 @@ Created on Mon Dec 27 15:39:47 2021
 from typing import List, Iterable
 from datetime import datetime
 from copy import deepcopy
+import math
 
 # Thrid party imports
 import numpy as np
 import pandas as pd
 
 # Local imports
+from FDDExceptions import FDDException
 
 #%%
 
@@ -152,5 +154,63 @@ def _hour_segment_indices_from_seconds(seconds: Iterable[int]) -> List[List[int]
         
     return indices
 
-seconds = [0,900,2700,4500,8100]
-res = _hour_segment_indices_from_seconds(seconds)
+def maximum_allowed_failures(mask: np.ma.MaskedArray,
+                             data: pd.DataFrame,
+                             failure_percent: float, 
+                             report_columns: List[str],
+                             error_msg:str) -> None:
+    """Raise a FDDException if the maximum number of failures within a mask is 
+    exceeded"""
+    
+    max_failures = math.floor(failure_percent * len(mask))
+    if mask.sum() > max_failures:
+        report_indices = mask.nonzero()[0][:max_failures]
+        data_view = data.loc[report_indices, report_columns].to_dict(orient='list')
+        gmsg=("The maximum allowed instances ({} at {:.0%} of samples) was "+
+             "exceeded ({} observed)")
+        msg = error_msg + "\n" + gmsg
+        msg=msg.format(max_failures, failure_percent, mask.sum())
+        data_view['primary_axis_label'] = report_columns[0]
+        data_view['dependent_axis_labels'] = report_columns[1:]
+        raise FDDException(msg, data_view)
+            
+    return None
+
+def failure_threshold_exceeded(data: pd.DataFrame,
+                               report_columns: List[str],
+                               report_indices: List[int],
+                               error_msg:str) -> None:
+    """Raise a FDDException if the calculated threshold of failures is
+    exceeded
+    Useful for calculated thresholds (total sum, integration, etc.)"""
+    
+    data_view = data.loc[report_indices, report_columns].to_dict(orient='list')
+    gmsg=("Failure threshold exceeded")
+    msg = error_msg + "\n" + gmsg
+    data_view['primary_axis_label'] = report_columns[0]
+    data_view['dependent_axis_labels'] = report_columns[1:]
+    raise FDDException(msg, data_view)
+            
+    return None
+
+def maximum_consecutive_failures(mask: np.ma.MaskedArray,
+                                 data: pd.DataFrame,
+                                 failure_consecutive: float, 
+                                 report_columns: List[str],
+                                 error_msg:str) -> None:
+    
+    consecutive_indices = masked_consecutive_elements(mask, failure_consecutive)
+    if len(consecutive_indices) > 0:
+        report_indices = np.arange(max(0, consecutive_indices[0] - 10), 
+                                   min(consecutive_indices[0] + 10, data.shape[0]), 
+                                   step=1, dtype=int)
+        data_view = data.loc[report_indices, report_columns].to_dict(orient='list')
+        gmsg=("The maximum allowed consecutive instances ({}) was exceeded "+
+              "starting at data indices {}")
+        msg = error_msg + "\n" + gmsg
+        msg=msg.format(failure_consecutive, consecutive_indices)
+        data_view['primary_axis_label'] = report_columns[0]
+        data_view['dependent_axis_labels'] = report_columns[1:]
+        raise FDDException(msg, data_view)
+            
+    return None
