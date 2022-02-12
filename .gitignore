@@ -1,3 +1,7 @@
 __pycache__
 *.png
 report.txt
+
+# Negations
+!figure1.png
+!figure2.png
