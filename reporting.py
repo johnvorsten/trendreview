@@ -44,7 +44,13 @@ class FDDImageGeneration:
         return None
     
     @classmethod
-    def generate_image(cls, exception: FDDException):
+    def generate_image(cls, exception: FDDException, 
+                       chart_properties: MutableMapping[str,str]):
+        """
+        inputs
+        -------
+        chart_properties: (dict) of mappings for matplotlib style configuration
+        options. See https://matplotlib.org/stable/api/_as_gen/matplotlib.lines.Line2D.html"""
         # Annotate data
         data = exception.data
         independent_label = data['primary_axis_label']
@@ -62,7 +68,8 @@ class FDDImageGeneration:
         # Set data
         for dependent_label in dependent_labels:
             ys = data[dependent_label]
-            lines = ax.plot(x_data, ys, label=dependent_label)
+            lines = ax.plot(x_data, ys, 
+                            label=dependent_label, **chart_properties)
         
         ax.legend()
         # Rotate all dates on x axis
@@ -116,12 +123,21 @@ class FDDReporting:
         
         return None
     
-    def log_exception(self, exception: FDDException, create_image=True):
+    def log_exception(self, exception: FDDException, 
+                      create_image: bool = True, 
+                      chart_properties: MutableMapping[str,str] = None):
         """Given a specific failure, log the rule broken and give metadata
-        on the broken rule"""
+        on the broken rule
+        inputs
+        -------
+        exception: (FDDException)
+        create_image: (bool) When creating a log, choose to create an image
+        showing data associated with log (default True)
+        chart_properties: (dict) of mappings for matplotlib style configuration
+        options. See https://matplotlib.org/stable/api/_as_gen/matplotlib.lines.Line2D.html"""
         
         if create_image:
-            img = self.imageGenerator.generate_image(exception)
+            img = self.imageGenerator.generate_image(exception, chart_properties)
             self.imageGenerator.save_image(img)
             
         with open(self.log_filepath, 'at+') as f:

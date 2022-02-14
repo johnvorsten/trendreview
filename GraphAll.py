@@ -24,17 +24,24 @@ import numpy as np
 # Local imports
 from FDDExceptions import FDDException
 from reporting import FDDReporting
-from helpers import (masked_consecutive_elements, 
-                     _datetimes_to_seconds_deviation_from_start,
-                     _hour_segment_indices_from_seconds,
-                     )
+
 # Declarations
 HEADERS = ['DateTime',
                  ]
 TYPES = {'DateTime':object,
                 }
 
+chart_properties = {
+    'color':'b', # Blue
+    'dash_capstyle':'butt', # Doesnt matter with scatter
+    'marker':'.', # point, could also try pixel depending on amount of data
+    'markersize':2, # points, diameter or marker
+    'markevery':None, # Plot all markers
+    'linestyle':'None',
+    }
+
 #%%
+
 
 
 class GraphAll:
@@ -52,33 +59,48 @@ class GraphAll:
         
         return None
     
-    def evaluate_rules(self, methods: List[Callable[[pd.DataFrame],None]], 
-                       reporter: FDDReporting) -> None:
-        """This is a convenience function which calls each of the methods
-        passed to it, and catches FDDExceptions thrown by each rule, then logs
-        the exceptions
+    def graph_all_data(self, 
+                       reporter: FDDReporting, 
+                       independent_axis_name: str = 'DateTime', 
+                       dependent_axis_names: List[str] = None,) -> None:
+        """Graph each of dependent axis names versus a specified independent 
+        axis
         
         Example
-        sdvavRules = SDVAVRules(filepath)
-        methods = sdvavRules.get_rules()
-        reporter = FDDReporting(log_filepath=log_filepath)
-        sdvavRules.evaluate_rules(methods, reporter)
-        # Results of faults detected in `filepath`
+
         """
-        for method in methods:
-            try:
-                method(self.data)
-            except FDDException as e:
-                reporter.log_exception(e, create_image=True)
+        
+        if dependent_axis_names == None:
+            dependent_axis_names = self.get_dependent_axis_names(
+                independent_axis_name)
+        
+        for dependent_axis_name in dependent_axis_names:
+            # Generic message
+            msg = "Graph of {} versus {}".format(dependent_axis_name, 
+                                                 independent_axis_name)
+            # Collect data
+            data_view = self.data.loc[:,[independent_axis_name, dependent_axis_name]]\
+                .to_dict(orient='list')
+            data_view['primary_axis_label'] = independent_axis_name
+            data_view['dependent_axis_labels'] = [dependent_axis_name]
+            
+            # The exception holds message and data
+            fddexception = FDDException(msg, data_view)
+
+            # Create visualization and report
+            reporter.log_exception(fddexception, create_image=True, chart_properties=chart_properties)
+        
         return None
     
-    def get_rules(self):
-        """Get all class member functions that start with 'rule_'"""
+    def get_dependent_axis_names(self, independent_axis_name: str) -> List[str]:
+        """Get a list of dependent axis names based on header data
+        inputs
+        -------
+        outputs
+        -------
+        dependent_axis_names: (list of str)"""
+        # Pandas Index object
+        dependent_axis_names = self.data.columns.to_list()
+        dependent_axis_names.remove(independent_axis_name) # Remove independent axis
         
-        methods = []
-        for name in dir(self):
-            attribute = getattr(self, name)
-            if inspect.ismethod(attribute) and str(attribute).__contains__('.rule_'):
-                methods.append(attribute)
-        
-        return methods
+        return dependent_axis_names

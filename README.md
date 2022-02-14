@@ -41,6 +41,11 @@ Sample images:</br>
 ![Figure1](./figure1.png)
 ![Figure2](./figure2.png)
 
+Graph all data:</br>
+```cmd
+`~:# python trendreview.py --filepath ./data/DD03.csv --type GraphAll --report-path "C:/users/jvorsten/downloads/report.txt"`
+```
+
 # Dual duct VAV
 
 ## Required headers

@@ -13,11 +13,12 @@ import os
 
 # Local imports
 from ddvav import DDVAVRules
+from GraphAll import GraphAll
 from reporting import FDDImageGeneration, FDDReporting
 from FDDExceptions import FDDException
 
 # Declarations
-SUPPORTED_EQUIPMENT = ['ddvav']
+SUPPORTED_EQUIPMENT = ['ddvav', 'GraphAll']
 description = """Fault Diagnostics and Detection for trend review of mechanical 
 equipment"""
 parser = argparse.ArgumentParser(description=description)
@@ -28,7 +29,8 @@ parser.add_argument('--type', type=str,
                     choices=SUPPORTED_EQUIPMENT, required=True,
                     dest='type',
                     help=('Type of mechanical equipment being trended. Must '+
-                    'be one of {}'.format(SUPPORTED_EQUIPMENT)))
+                    'be one of {}. Use GraphAll to create a graph of every '+
+                    'data column versus the primary axis (DateTime)'.format(SUPPORTED_EQUIPMENT)))
 parser.add_argument('--report-path', type=argparse.FileType('w', encoding='utf-8'),
                     required=False, default='./report.txt',
                     dest='log_filepath',
@@ -71,5 +73,11 @@ if __name__ == '__main__':
                 method(ddvavRules.data)
             except FDDException as e:
                 reporter.log_exception(e, create_image=True)
-        
-    
+                
+    if equipment_type == 'GraphAll':
+        # Possilbe configuration in the future
+        independent_axis_name = 'DateTime'
+        dependent_axis_names = None # Graph all
+        # Load data
+        graphall = GraphAll(filepath)
+        graphall.graph_all_data(reporter, independent_axis_name, dependent_axis_names)
