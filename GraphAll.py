@@ -13,7 +13,7 @@ Logic
 """
 
 # Python imports
-from typing import List, Callable
+from typing import List, Callable, Dict
 import inspect
 import math
 
@@ -84,11 +84,23 @@ class GraphAll:
             data_view['primary_axis_label'] = independent_axis_name
             data_view['dependent_axis_labels'] = [dependent_axis_name]
             
+            # Cast pandas timestamp to string
+            self._timestamp_to_string(data_view[independent_axis_name])
+            
             # The exception holds message and data
             fddexception = FDDException(msg, data_view)
 
             # Create visualization and report
-            reporter.log_exception(fddexception, create_image=True, chart_properties=chart_properties)
+            reporter.log_exception(fddexception, create_image=True, 
+                                   chart_properties=chart_properties)
+        
+        return None
+    
+    @classmethod
+    def _timestamp_to_string(cls, data: List):
+        
+        for i in range(0, len(data)):
+            data[i] = str(data[i]) # Modify timestamp value in place
         
         return None
     

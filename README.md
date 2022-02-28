@@ -45,6 +45,14 @@ Graph all data:</br>
 ```cmd
 `~:# python trendreview.py --filepath ./data/DD03.csv --type GraphAll --report-path "C:/users/jvorsten/downloads/report.txt"`
 ```
+# Graph all colums versus time
+To create a graph of all data points versus time, use "GraphAll" with the `--type` switch.  This creates a series of images of a variable versus time.
+This function requires a column headered with "DateTime" strings in the format "YYYY-MM-DDTHH:MM:SS". For example, if you have date and time columns configured in Excel serial number formats, then use a Microsoft Excel formula like `=TEXT(A2, "YYYY-MM-DD") & "T" & TEXT(B2, "HH:MM:SS")`. 
+
+Requirements:
+DateTime values in format "YYYY-MM-DDTHH:MM:SS"
+DateTime header present in file
+File configured as comma-separated-values (CSV)
 
 # Dual duct VAV
 
@@ -53,6 +61,7 @@ The only required header columns are:
 
 [DateTime, DischargeTemperature, CoolingDamperCommand, CoolingDamperPosition, CoolingAirVolume, CoolingSetpoint, ControlTemperature, ScheduleMode, OccupancyMode, HeatCoolMode, HeatingDamperCommand, HeatingDamperPosition, HeatingAirVolume, RoomTemperature, AirflowSetpoint]
 
+You may include more headers than those shown above, but they will not be used by this program
 See the next sections for formatting and type instructions
 
 ## Dual-Duct VAV input data types
