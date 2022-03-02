@@ -48,35 +48,39 @@ from helpers import (masked_consecutive_elements,
                      failure_threshold_exceeded)
 # Declarations
 SDVAV_HEADERS = ['DateTime', 
-                 'DischargeTemperature', #Not used
-                 'DischargeTemperatureSetpoint',#Not used
                  'DamperCommand',
                  'DamperPosition', 
                  'AirVolume',
-                 'ControlTemperature', 
-                 'ScheduleMode', #Not used
-                 'OccupancyMode', #Not used
+                 'ControlSetpoint', 
                  'HeatCoolMode', 
                  'RoomTemperature', 
-                 'AirflowSetpoint', #Not used
                  'HeatingValveCommand',
                  'HeatingValvePosition',
                  ]
+UNUSED_SDVAV_HEADERS = [
+    'DischargeTemperature', #Not used
+    'DischargeTemperatureSetpoint',#Not used
+    'ScheduleMode', #Not used
+    'OccupancyMode', #Not used
+    'AirflowSetpoint', #Not used
+    ]
 SDVAV_TYPES = {'DateTime':object, 
-               'DischargeTemperature':np.float32, 
                'DamperCommand':np.float32,
                'DamperPosition':np.float32, 
                'AirVolume':np.float32, 
-               'ControlTemperature':np.float32, 
-               'ScheduleMode':np.int8, 
-               'OccupancyMode':bool,
+               'ControlSetpoint':np.float32, 
                'HeatCoolMode':str, 
                'RoomTemperature':np.float32, 
-               'AirflowSetpoint':np.float32,
                'HeatingValveCommand':np.float32,
                'HeatingValvePosition':np.float32,
-               'DischargeTemperatureSetpoint':np.float32,
                 }
+UNUSED_SDVAV_TYPES = {
+    'DischargeTemperature':np.float32, 
+    'DischargeTemperatureSetpoint':np.float32,
+    'ScheduleMode':np.int8, 
+    'OccupancyMode':bool,
+    'AirflowSetpoint':np.float32,
+    }
 
 #%%
 
@@ -236,7 +240,7 @@ class SDVAVRules:
         hour measured"""
         # Tolerance for considering airflow at zero
         failure_threshold = 1 # [Degree * hour]
-        report_columns = ["DateTime","ControlTemperature","RoomTemperature"]
+        report_columns = ["DateTime","ControlSetpoint","RoomTemperature"]
         error_msg=("Excessive deviation in process variable versus setpoint. "+
                    "{:.2f} DegF*hour calculated deviation during hour long " +
                    "measurement period; threshold={}")
@@ -248,7 +252,7 @@ class SDVAVRules:
         # summation
         for segment in segments: 
             # Calculate temperature deviation
-            diff = data.loc[segment, "ControlTemperature"].to_numpy() - data.loc[segment, "RoomTemperature"].to_numpy()
+            diff = data.loc[segment, "ControlSetpoint"].to_numpy() - data.loc[segment, "RoomTemperature"].to_numpy()
             deviation = np.trapz(y=diff, x=seconds[segment]) / 3600
             # Error determination
             if abs(deviation) > failure_threshold:

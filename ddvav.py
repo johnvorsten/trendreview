@@ -39,27 +39,34 @@ from helpers import (masked_consecutive_elements,
                      maximum_consecutive_failures,
                      failure_threshold_exceeded)
 # Declarations
-DDVAV_HEADERS = ['DateTime', 'DischargeTemperature', 'CoolingDamperCommand',
-                 'CoolingDamperPosition', 'CoolingAirVolume', 'CoolingSetpoint',
-                 'ControlTemperature', 'ScheduleMode', 'OccupancyMode',
-                 'HeatCoolMode', 'HeatingDamperCommand', 'HeatingDamperPosition',
-                 'HeatingAirVolume', 'RoomTemperature', 'AirflowSetpoint']
-DDVAV_TYPES = {'DateTime':object, 
-               'DischargeTemperature':np.float32, 
-               'CoolingDamperCommand':np.float32,
-               'CoolingDamperPosition':np.float32, 
-               'CoolingAirVolume':np.float32, 
-               'CoolingSetpoint':np.float32,
-               'ControlTemperature':np.float32, 
-               'ScheduleMode':np.int8, 
-               'OccupancyMode':bool,
-               'HeatCoolMode':str, 
-               'HeatingDamperCommand':np.float32, 
-               'HeatingDamperPosition':np.float32,
-               'HeatingAirVolume':np.float32, 
-               'RoomTemperature':np.float32, 
-               'AirflowSetpoint':np.float32,
-                }
+DDVAV_HEADERS = [
+    'DateTime', 'DischargeTemperature', 'CoolingDamperCommand',
+    'CoolingDamperPosition', 'CoolingAirVolume',
+    'ControlSetpoint', 
+    'HeatCoolMode', 'HeatingDamperCommand', 'HeatingDamperPosition',
+    'HeatingAirVolume', 'RoomTemperature']
+UNUSED_HEADERS = [
+    'CoolingSetpoint', 'ScheduleMode', 'OccupancyMode',
+    'AirflowSetpoint']
+DDVAV_TYPES = {
+    'DateTime':object, 
+    'DischargeTemperature':np.float32, 
+    'CoolingDamperCommand':np.float32,
+    'CoolingDamperPosition':np.float32, 
+    'CoolingAirVolume':np.float32, 
+    'ControlSetpoint':np.float32, 
+    'HeatCoolMode':str, 
+    'HeatingDamperCommand':np.float32, 
+    'HeatingDamperPosition':np.float32,
+    'HeatingAirVolume':np.float32, 
+    'RoomTemperature':np.float32, 
+    }
+UNUSED_DDVAV_TYPES = {
+    'CoolingSetpoint':np.float32, # Not used
+    'ScheduleMode':np.int8, # Not used
+    'OccupancyMode':bool, # Not used
+    'AirflowSetpoint':np.float32, # Not used
+    }
 
 #%%
 
@@ -344,7 +351,7 @@ class DDVAVRules:
         hour measured"""
         # Tolerance for considering airflow at zero
         failure_threshold = 1 # [Degree * hour]
-        report_columns = ["DateTime","ControlTemperature","RoomTemperature"]
+        report_columns = ["DateTime","ControlSetpoint","RoomTemperature"]
         error_msg=("Excessive deviation in process variable versus setpoint. "+
                    "{:.2f} DegF*hour calculated deviation during hour long " +
                    "measurement period; threshold={}")
@@ -356,7 +363,7 @@ class DDVAVRules:
         # summation
         for segment in segments: 
             # Calculate temperature deviation
-            diff = data.loc[segment, "ControlTemperature"].to_numpy() - data.loc[segment, "RoomTemperature"].to_numpy()
+            diff = data.loc[segment, "ControlSetpoint"].to_numpy() - data.loc[segment, "RoomTemperature"].to_numpy()
             deviation = np.trapz(y=diff, x=seconds[segment]) / 3600
             # Error determination
             if abs(deviation) > failure_threshold:

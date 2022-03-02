@@ -1,4 +1,4 @@
-﻿Date,Time,DateTime,DischargeTemperature,CoolingDamperCommand,CoolingDamperPosition,CoolingAirVolume,CoolingSetpoint,ControlTemperature,ScheduleMode,OccupancyMode,HeatCoolMode,HeatingDamperCommand,HeatingDamperPosition,HeatingAirVolume,RMSTPTDIAL,RoomTemperature,STPTDIAL,AirflowSetpoint
+﻿Date,Time,DateTime,DischargeTemperature,CoolingDamperCommand,CoolingDamperPosition,CoolingAirVolume,CoolingSetpoint,ControlSetpoint,ScheduleMode,OccupancyMode,HeatCoolMode,HeatingDamperCommand,HeatingDamperPosition,HeatingAirVolume,RMSTPTDIAL,RoomTemperature,STPTDIAL,AirflowSetpoint
 11/19/2021,0:00,2021-11-19T00:00,52.5,34.4,34.4,408,65,67.25,1,1,COOL,0,0,0,63,67.25,YES,408
 11/19/2021,0:05,2021-11-19T00:05,52.5,33.6,33.6,412,65,67.5,1,1,COOL,0,0,0,63,67.5,YES,412
 11/19/2021,0:10,2021-11-19T00:10,52.5,33.2,32.8,408,65,67.25,1,1,COOL,0,0,0,63,67.25,YES,408

@@ -2,6 +2,7 @@ __pycache__
 *.png
 report.txt
 **/reports/*
+**/data/CMR_TRENDS review.csv
 
 # Negations
 !figure1.png

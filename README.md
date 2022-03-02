@@ -17,7 +17,7 @@ Fault Diagnostics and Detection for trend review of mechanical equipment
 optional arguments:
   -h, --help            show this help message and exit
   --filepath FILEPATH   file path to trended data in CSV format
-  --type {ddvav}        Type of mechanical equipment being trended. Must be
+  --type {ddvav, GraphAll}        Type of mechanical equipment being trended. Must be
                         one of ['ddvav']
   --report-path LOG_FILEPATH
                         Filename to save report, like c:/path/to/report.txt
@@ -59,7 +59,7 @@ File configured as comma-separated-values (CSV)
 ## Required headers
 The only required header columns are:
 
-[DateTime, DischargeTemperature, CoolingDamperCommand, CoolingDamperPosition, CoolingAirVolume, CoolingSetpoint, ControlTemperature, ScheduleMode, OccupancyMode, HeatCoolMode, HeatingDamperCommand, HeatingDamperPosition, HeatingAirVolume, RoomTemperature, AirflowSetpoint]
+[DateTime, DischargeTemperature, CoolingDamperCommand, CoolingDamperPosition, CoolingAirVolume, ControlSetpoint, HeatCoolMode, HeatingDamperCommand, HeatingDamperPosition, HeatingAirVolume, RoomTemperature]
 
 You may include more headers than those shown above, but they will not be used by this program
 See the next sections for formatting and type instructions
@@ -68,23 +68,44 @@ See the next sections for formatting and type instructions
 If you do not follow these data sanitation rules, then you may encounter an error.
 
 * DateTime: (string) Must be [ISO 8061 time format](https://www.iso.org/iso-8601-date-and-time-format.html). ISO 8061 is a date and time string-formatting scheme. Format your timestamps like `YYYY-mm-ddTHH:MM:SS`. For example, `2021-12-29T16:31:21` is year 2021, December 29th 4:31 PM and 21 seconds. Notice that the hour format is zero padded and 24-hour. Make sure to zero-pad all of your months, days, hours, and minutes. If you are using excel, consider using formulas like =TEXT(A2, 'yyyy-mm-ddTHH:MM:SS') if your dates are stored in a serial number date format.
-
 * ScheduleMode: (integer) Must be integer one of [1,0]. '1' indicates scheduled occupancy, and '0' indicates schedule unoccpuancy. This software does not make a distinction between modes like warmup/precomfort/cooldown/protection
 * OccupancyMode: (integer) Must be boolean integer [1,0]. 1 for True/occupide mode, 0 for False/unoccupied mode
 * HeatCoolMode: (string) string one of ['HEAT','COOL']
-* HeatingDamperCommand: (numeric) data type, ranging from 0-100. Percentage inputs might not be supported
-* HeatingDamperPosition: (numeric) data type, ranging from 0-100. Percentage inputs might not be supported
+* HeatingDamperCommand[0-100]: (numeric) data type, ranging from 0-100. Percentage inputs might not be supported
+* HeatingDamperPosition[0-100]: (numeric) data type, ranging from 0-100. Percentage inputs might not be supported
 * HeatingAirVolume[ft^3/min]: (numeric) measured/calculated air volume from hot duct
 * RoomTemperature[degrees Fahrenehit]: (numeric) measured room temperature
 * AirflowSetpoint[ft^3/min]: (numeric) Current airflow setpoint
 * CoolingSetpoint[degrees Fahrenehit]: (numeric) 
-* ControlTemperature[degrees Fahrenehit]: (numeric) The value used to calculate the current control temperature / setpoint. Don't be confused by the CoolingSetpoint or HeatingSetpoint headers. This should be the actual value used to control to (the value being compared to the process variable to calculate error).
+* ControlSetpoint[degrees Fahrenehit]: (numeric) The value used to calculate the current control temperature / setpoint. Don't be confused by the CoolingSetpoint or HeatingSetpoint headers. This should be the actual value used to control to (the value being compared to the process variable to calculate error).
 * DischargeTemperature[degrees Fahrenehit]: (numeric) measured discharge air temperature
-* CoolingDamperCommand: (numeric) data type, ranging from 0-100. Percentage inputs might not be supported
-* CoolingDamperPosition: (numeric) data type, ranging from 0-100. Percentage inputs might not be supported
+* CoolingDamperCommand[0-100]: (numeric) data type, ranging from 0-100. Percentage inputs might not be supported
+* CoolingDamperPosition[0-100]: (numeric) data type, ranging from 0-100. Percentage inputs might not be supported
 
+# Single duct VAV
 
-## About data
+## Required headers
+The only required header columns are:
+
+['DateTime', 'DamperCommand','DamperPosition', 'AirVolume','ControlSetpoint', 'HeatCoolMode','RoomTemperature', 'HeatingValveCommand','HeatingValvePosition',]
+
+### Single duct VAV input data types
+* DateTime: (string) Must be [ISO 8061 time format](https://www.iso.org/iso-8601-date-and-time-format.html). ISO 8061 is a date and time string-formatting scheme. Format your timestamps like `YYYY-mm-ddTHH:MM:SS`. For example, `2021-12-29T16:31:21` is year 2021, December 29th 4:31 PM and 21 seconds. Notice that the hour format is zero padded and 24-hour. Make sure to zero-pad all of your months, days, hours, and minutes. If you are using excel, consider using formulas like =TEXT(A2, 'yyyy-mm-ddTHH:MM:SS') if your dates are stored in a serial number date format.
+* DamperCommand[0-100]: (numeric) data type, ranging from 0-100. Percentage inputs might not be supported
+* DamperPosition[0-100]: (numeric) data type, ranging from 0-100. Percentage inputs might not be supported
+* AirVolume[ft^3/min]: (numeric) measured/calculated air volume
+* ControlSetpoint[degrees Fahrenehit]: (numeric) The value used to calculate the current control temperature / setpoint. Don't be confused by the CoolingSetpoint or HeatingSetpoint headers. This should be the actual value used to control to (the value being compared to the process variable to calculate error).
+* HeatCoolMode: (string) string one of ['HEAT','COOL']
+* RoomTemperature[degrees Fahrenehit]: (numeric) measured room temperature
+* HeatingValveCommnad[0-100]: (numeric) ranging from 0-100. Percentage inputs might not be supported
+* HeatingValvePosition[0-100]: (numeric) ranging from 0-100. Percentage inputs might not be supported
+* ScheduleMode (not required): (integer) Must be integer one of [1,0]. '1' indicates scheduled occupancy, and '0' indicates schedule unoccpuancy. This software does not make a distinction between modes like warmup/precomfort/cooldown/protection
+* OccupancyMode (not required): (integer) Must be boolean integer [1,0]. 1 for True/occupide mode, 0 for False/unoccupied mode
+* AirflowSetpoint[ft^3/min] (not required): (numeric) Current airflow setpoint
+* DischargeTemperature[degrees Fahrenehit] (not required): (numeric) measured discharge air temperature
+* DischargeTemperatureSetpoint[degrees Fahrenehit] (not required): (numeric) discharge air temperature setpoint for discharge temperature control
+
+# About data
 The data directory contains (2) files: DD03.csv and DD64.csv.
 
 Each of these files contain trended data from dual duct terminal units. Each of these terminal units have a specific configuration, and each of the trend files has certain trended objects related to each dual duct terminal unit.
@@ -92,7 +113,7 @@ Each of these files contain trended data from dual duct terminal units. Each of 
 Based on the headers we know which child objects each terminal unit has. For this documentation, they are listed below.
 
 For DD03
-* ['DateTime', 'DischargeTemperature', 'CoolingDamperCommand', 'CoolingDamperPosition', 'CoolingAirVolume', 'CoolingSetpoint', 'ControlTemperature', 'ScheduleMode', 'OccupancyMode', 'HeatCoolMode', 'HeatingDamperCommand', 'HeatingDamperPosition', 'HeatingAirVolume', 'RMSTPTDIAL', 'RoomTemperature', 'STPTDIAL', 'AirflowSetpoint']
+* ['DateTime', 'DischargeTemperature', 'CoolingDamperCommand', 'CoolingDamperPosition', 'CoolingAirVolume', 'CoolingSetpoint', 'ControlSetpoint', 'ScheduleMode', 'OccupancyMode', 'HeatCoolMode', 'HeatingDamperCommand', 'HeatingDamperPosition', 'HeatingAirVolume', 'RMSTPTDIAL', 'RoomTemperature', 'STPTDIAL', 'AirflowSetpoint']
 
 For DD64
 * All of the same headers are available', 'except the header data ['RMSTPTDIAL', 'RoomTemperature', 'STPTDIAL'] do not contain any data
