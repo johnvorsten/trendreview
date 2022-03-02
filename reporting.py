@@ -10,15 +10,15 @@ containing the exceptions data
 """
 
 # Python imports
-from typing import List, MutableMapping
+from typing import MutableMapping
 import os
 import glob
 import re
 
 # Third party imports
-import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
+from matplotlib.dates import AutoDateLocator
 
 # Local imports
 from FDDExceptions import FDDException
@@ -72,10 +72,11 @@ class FDDImageGeneration:
                             label=dependent_label, **chart_properties)
         
         ax.legend()
-        # Rotate all dates on x axis
-        labels = ax.xaxis.get_majorticklabels()
-        for label in labels:
-            label.set_rotation(45)
+        
+        # Format dates on X axis
+        locator = AutoDateLocator()
+        ax.xaxis.set_major_locator(locator)
+        fig.autofmt_xdate()
         
         return fig
     
