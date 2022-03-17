@@ -166,3 +166,8 @@ Temperature rise across inactive heating coil
 
 # Testing
 from project root (trendreview) at the terminal: `python -m unittest discover tests "test_*.py"`
+
+# Building publishing
+Increment build version in setup.cfg
+python -m build
+python -m twine upload dist/*
