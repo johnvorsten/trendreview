@@ -22,8 +22,8 @@ import pandas as pd
 import numpy as np
 
 # Local imports
-from FDDExceptions import FDDException
-from reporting import FDDReporting
+from .FDDExceptions import FDDException
+from .reporting import FDDReporting
 
 # Declarations
 HEADERS = ['DateTime',

@@ -37,9 +37,9 @@ import pandas as pd
 import numpy as np
 
 # Local imports
-from FDDExceptions import FDDException
-from reporting import FDDReporting
-from helpers import (masked_consecutive_elements, 
+from .FDDExceptions import FDDException
+from .reporting import FDDReporting
+from .helpers import (masked_consecutive_elements, 
                      read_csv,
                      _datetimes_to_seconds_deviation_from_start,
                      _hour_segment_indices_from_seconds,

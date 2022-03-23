@@ -21,7 +21,7 @@ from matplotlib.figure import Figure
 from matplotlib.dates import AutoDateLocator
 
 # Local imports
-from FDDExceptions import FDDException
+from .FDDExceptions import FDDException
 
 # Declarations
 

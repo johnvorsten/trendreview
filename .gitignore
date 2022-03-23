@@ -3,6 +3,9 @@ __pycache__
 report.txt
 **/reports/*
 **/data/CMR_TRENDS review.csv
+**/dist/*
+**/*.tar*
+**/*.whl*
 
 # Negations
 !figure1.png

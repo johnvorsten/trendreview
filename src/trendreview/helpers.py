@@ -16,7 +16,7 @@ import numpy as np
 import pandas as pd
 
 # Local imports
-from FDDExceptions import FDDException
+from .FDDExceptions import FDDException
 
 #%%
 

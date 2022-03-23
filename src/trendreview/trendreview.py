@@ -7,15 +7,15 @@ Created on Wed Dec 29 14:58:18 2021
 
 # Python imports
 import argparse
-import os
+import os, sys
 
 # Third party imports
 
 # Local imports
-from ddvav import DDVAVRules
-from GraphAll import GraphAll
-from reporting import FDDImageGeneration, FDDReporting
-from FDDExceptions import FDDException
+from .ddvav import DDVAVRules
+from .GraphAll import GraphAll
+from .reporting import FDDImageGeneration, FDDReporting
+from .FDDExceptions import FDDException
 
 # Declarations
 SUPPORTED_EQUIPMENT = ['ddvav', 'GraphAll']
@@ -36,9 +36,7 @@ parser.add_argument('--report-path', type=argparse.FileType('w', encoding='utf-8
                     dest='log_filepath',
                     help='Filename to save report, like c:/path/to/report.txt')
 
-
 #%%
-
 
 def test_parse_args():
     
@@ -52,9 +50,8 @@ def test_parse_args():
             
     return None
 
+def main():
 
-
-if __name__ == '__main__':
     # Parse arguments
     namespace = parser.parse_args()
     filepath = os.path.abspath(namespace.filepath)
@@ -81,3 +78,8 @@ if __name__ == '__main__':
         # Load data
         graphall = GraphAll(filepath)
         graphall.graph_all_data(reporter, independent_axis_name, dependent_axis_names)
+
+    return None
+
+if __name__ == '__main__':
+    sys.exit(main())
