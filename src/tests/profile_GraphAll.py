@@ -9,14 +9,14 @@ import os
 # Third party imports
 
 # Local imports
-from GraphAll import GraphAll
-from reporting import FDDReporting
+from trendreview.GraphAll import GraphAll
+from trendreview.reporting import FDDReporting
 
 # Declarations
-filepath = os.path.abspath("./data/ddvav_test.csv")
+filepath = os.path.abspath("../data/ddvav_test.csv")
 equipment_type = 'GraphAll'
-log_filepath = os.path.abspath("./reports/report_profile.txt")
-pstats_filepath = os.path.abspath("./reports/pstats_out.txt")
+log_filepath = os.path.abspath("../reports/report_profile.txt")
+pstats_filepath = os.path.abspath("../reports/pstats_out.txt")
 
 #%%
 

@@ -17,15 +17,16 @@ import pandas as pd
 import numpy as np
 
 # Local imports
-from GraphAll import GraphAll
-from reporting import FDDReporting
-from FDDExceptions import FDDException
+from trendreview.GraphAll import GraphAll
+from trendreview.reporting import FDDReporting
+from trendreview.FDDExceptions import FDDException
 
 # Read file into pandas dataframe
 # Relative to project root (not relative to __file__)
-FILEPATH = './data/DD03.csv'
-FILEPATH2 = './data/dd64.csv'
-FILEPATH3 = './data/ddvav_test.csv'
+FILEPATH = '../data/DD03.csv'
+FILEPATH2 = '../data/dd64.csv'
+FILEPATH3 = '../data/ddvav_test.csv'
+LOG_FILEPATH = '../reports/testreport.txt'
 
 #%%
 
@@ -42,7 +43,7 @@ class TestGraphAll(unittest.TestCase):
     def test_graph_all_data(self):
         independent_axis_name = 'DateTime'
         dependent_axis_names = None # Graph all
-        reporter = FDDReporting(log_filepath=os.path.join(os.getcwd(), 'reports', 'testreport.txt'))
+        reporter = FDDReporting(log_filepath=LOG_FILEPATH)
         self.graphall.graph_all_data(reporter, independent_axis_name, dependent_axis_names)
         return None
     

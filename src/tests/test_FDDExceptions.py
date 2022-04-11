@@ -13,11 +13,9 @@ import unittest
 from pandas import Timestamp
 
 # Local imports
-from FDDExceptions import FDDException
+from trendreview.FDDExceptions import FDDException
 
 #%%
-
-
 
 class FDDExceptionTest(unittest.TestCase):
     

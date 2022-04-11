@@ -17,16 +17,16 @@ import pandas as pd
 import numpy as np
 
 # Local imports
-from ddvav import (DDVAVRules, DDVAV_TYPES, DDVAV_HEADERS)
-from helpers import (read_csv, masked_consecutive_elements, 
+from trendreview.ddvav import (DDVAVRules, DDVAV_TYPES, DDVAV_HEADERS)
+from trendreview.helpers import (read_csv, masked_consecutive_elements, 
                      _datetimes_to_seconds_deviation_from_start)
-from FDDExceptions import FDDException
+from trendreview.FDDExceptions import FDDException
 
 # Read file into pandas dataframe
 # Relative to project root (not relative to __file__)
-FILEPATH = './data/DD03.csv'
-FILEPATH2 = './data/dd64.csv'
-FILEPATH3 = './data/ddvav_test.csv'
+FILEPATH = '../data/DD03.csv'
+FILEPATH2 = '../data/dd64.csv'
+FILEPATH3 = '../data/ddvav_test.csv'
 
 #%%
 

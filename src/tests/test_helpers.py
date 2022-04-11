@@ -14,12 +14,12 @@ import numpy as np
 import pandas as pd
 
 # Local imports
-from helpers import read_csv, _correct_time_str_HM, _parse_date_time_str_YmdHM
-from ddvav import DDVAV_HEADERS, DDVAV_TYPES
+from trendreview.helpers import read_csv, _correct_time_str_HM, _parse_date_time_str_YmdHM
+from trendreview.ddvav import DDVAV_HEADERS, DDVAV_TYPES
 
 # Read file into pandas dataframe
-FILEPATH = './data/DD03.csv'
-FILEPATH2 = './data/dd64.csv'
+FILEPATH = '../data/DD03.csv'
+FILEPATH2 = '../data/dd64.csv'
 
 #%%
 

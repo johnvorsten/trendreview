@@ -51,7 +51,8 @@ def test_parse_args():
     return None
 
 def main(parser: argparse.ArgumentParser):
-
+    """Entrypoint
+    Parse user arguments and being based on arguments"""
     # Parse arguments
     namespace = parser.parse_args()
     filepath = os.path.abspath(namespace.filepath)
@@ -62,6 +63,7 @@ def main(parser: argparse.ArgumentParser):
     # Review data and run report
     reporter = FDDReporting(log_filepath=log_filepath)
     
+    # Apply fault detection rules for dual duct terminal unit and create report
     if equipment_type == 'ddvav':
         ddvavRules = DDVAVRules(filepath)
         methods = ddvavRules.get_rules()
@@ -71,6 +73,8 @@ def main(parser: argparse.ArgumentParser):
             except FDDException as e:
                 reporter.log_exception(e, create_image=True)
                 
+    # Do not apply fault detection rules for any equipment
+    # Create report and graph all data versus 'DateTime'
     if equipment_type == 'GraphAll':
         # Possilbe configuration in the future
         independent_axis_name = 'DateTime'
