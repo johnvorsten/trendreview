@@ -50,7 +50,7 @@ def test_parse_args():
             
     return None
 
-def main():
+def main(parser: argparse.ArgumentParser):
 
     # Parse arguments
     namespace = parser.parse_args()
@@ -82,4 +82,4 @@ def main():
     return None
 
 if __name__ == '__main__':
-    sys.exit(main())
+    sys.exit(main(parser))

@@ -1,6 +1,5 @@
 # Python imports
-import argparse
-import os
+import sys
 
 # Third party imports
 
@@ -10,5 +9,6 @@ from .trendreview import main, parser
 # Declarations
 
 #%%
-main()
 
+if __name__ == '__main__':
+    sys.exit(main(parser))
