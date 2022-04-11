@@ -7,7 +7,7 @@ Run `pip3 install trendreview`
 
 ## Usage example
 See usage instrucitons:
-`~:# python trendreview.py --help`
+`~:# python -m trendreview --help`
 ```bash
 usage: trendreview.py [-h] --filepath FILEPATH --type {ddvav}
                       [--report-path LOG_FILEPATH]
@@ -23,7 +23,7 @@ optional arguments:
                         Filename to save report, like c:/path/to/report.txt
 ```
 Generate a report:</br>
-`~:# python trendreview.py --filepath ./data/DD03.csv --type ddvav --report-path "C:/users/jvorsten/downloads/report.txt"`
+`~:# python -m trendreview --filepath ./data/DD03.csv --type ddvav --report-path "C:/users/jvorsten/downloads/report.txt"`
 
 Contents of report:</br>
 ```txt
@@ -43,14 +43,14 @@ Sample images:</br>
 
 Graph all data:</br>
 ```cmd
-`~:# python trendreview.py --filepath ./data/DD03.csv --type GraphAll --report-path "C:/users/jvorsten/downloads/report.txt"`
+`~:# python -m trendreview --filepath ./data/DD03.csv --type GraphAll --report-path "C:/users/yourself/downloads/report.txt"`
 ```
 # Graph all colums versus time
 To create a graph of all data points versus time, use "GraphAll" with the `--type` switch.  This creates a series of images of a variable versus time.
-This function requires a column headered with "DateTime" strings in the format "YYYY-MM-DDTHH:MM:SS". For example, if you have date and time columns configured in Excel serial number formats, then use a Microsoft Excel formula like `=TEXT(A2, "YYYY-MM-DD") & "T" & TEXT(B2, "HH:MM:SS")`. 
+This function requires a column headered with "DateTime" strings in the format "YYYY-MM-DDTHH:MM:SS" (Year-month-day, letter "T" (to mark time) hour:minute:second). For example, if you have date and time columns configured in Excel serial number formats, then use a Microsoft Excel formula like `=TEXT(A2, "YYYY-MM-DD") & "T" & TEXT(B2, "HH:MM:SS")`. 
 
 Requirements:
-DateTime values in format "YYYY-MM-DDTHH:MM:SS"
+DateTime values in format "YYYY-MM-DDTHH:MM:SS" (Example 2022-4-11T08:25:34 which is April 11, 2022 8:25AM and 34 seconds)
 DateTime header present in file
 File configured as comma-separated-values (CSV)
 
