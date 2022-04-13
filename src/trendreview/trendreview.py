@@ -21,11 +21,16 @@ from .FDDExceptions import FDDException
 SUPPORTED_EQUIPMENT = ['ddvav', 'GraphAll']
 description = """Fault Diagnostics and Detection for trend review of mechanical 
 equipment"""
+DESCRIPTION_GRAPH_COLUMNS = """
+Only graph the specified columns on the dependent axis when 
+using the "GraphAll" option. Specify column header names with 
+a space between each name. To graph all columns omit this argument.
+"""
 parser = argparse.ArgumentParser(description=description)
-parser.add_argument('--filepath', type=os.path.abspath,
+parser.add_argument('--filepath', '-f', type=os.path.abspath,
                     required=True, dest='filepath',
                     help='file path to trended data in CSV format')
-parser.add_argument('--type', type=str,
+parser.add_argument('--type', '-t', type=str,
                     choices=SUPPORTED_EQUIPMENT, required=True,
                     dest='type',
                     help=('Type of mechanical equipment being trended. Must '+
@@ -35,19 +40,36 @@ parser.add_argument('--report-path', type=argparse.FileType('w', encoding='utf-8
                     required=False, default='./report.txt',
                     dest='log_filepath',
                     help='Filename to save report, like c:/path/to/report.txt')
+parser.add_argument('--datetime-header', type=str,
+                    required=False, dest='independent_axis_name',
+                    help=('Header label of independent axis used to graph data ' +
+                    'against. Use to override default value of "DateTime".'),
+                    default='DateTime')
+parser.add_argument('--graph-columns', type=str, action='extend', nargs='+',
+                    dest='graph_columns', default=None,
+                    required=False, help=DESCRIPTION_GRAPH_COLUMNS)
 
 #%%
 
 def test_parse_args():
     
     filepath = './data/ddvav_test.csv'
-    args = ['--filepath', filepath, '--type', 'ddvav', '--report-path', './custom-report.txt']
+    args = ['--filepath', filepath, '--type', 'ddvav', '--report-path', './custom-report.txt',
+            '--graph-columns', 'column a','column b', 'column c', '--datetime-header', 'timestamp']
     namespace = parser.parse_args(args)
     filepath = os.path.abspath(namespace.filepath)
     equipment_type = namespace.type
     log_filepath = os.path.abspath(namespace.log_filepath.name)
     namespace.log_filepath.close()
-            
+    independent_axis_name = namespace.independent_axis_name
+    graph_columns = namespace.graph_columns
+    print(namespace)
+
+    args = ['--filepath', filepath, '--type', 'ddvav', '--report-path', './custom-report.txt',
+        '--graph-columns', 'column a','column b', 'column c', '--datetime-header', 'timestamp']
+    namespace = parser.parse_args(args)
+    print(namespace)
+
     return None
 
 def main(parser: argparse.ArgumentParser):
@@ -59,6 +81,8 @@ def main(parser: argparse.ArgumentParser):
     equipment_type = namespace.type
     log_filepath = os.path.abspath(namespace.log_filepath.name)
     namespace.log_filepath.close()
+    independent_axis_name = namespace.independent_axis_name
+    graph_columns = namespace.graph_columns # List
     
     # Review data and run report
     reporter = FDDReporting(log_filepath=log_filepath)
@@ -77,10 +101,9 @@ def main(parser: argparse.ArgumentParser):
     # Create report and graph all data versus 'DateTime'
     if equipment_type == 'GraphAll':
         # Possilbe configuration in the future
-        independent_axis_name = 'DateTime'
-        dependent_axis_names = None # Graph all
+        dependent_axis_names = graph_columns # List of names
         # Load data
-        graphall = GraphAll(filepath)
+        graphall = GraphAll(filepath, parse_dates=independent_axis_name)
         graphall.graph_all_data(reporter, independent_axis_name, dependent_axis_names)
 
     return None

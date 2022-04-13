@@ -59,12 +59,17 @@ class FDDImageGeneration:
         
         # Create the image
         fig, ax = plt.subplots(1,1)
+        
         # Set axes x and y label
         ax.set_xlabel(independent_label)
         ylabel = str()
-        for label in dependent_labels:
-            ylabel += ", " + label
+        for idx, label in enumerate(dependent_labels):
+            if idx % 2 == 0:
+                ylabel += ", " + label
+            if idx % 2 == 1:
+                ylabel += "\n" + label
         ax.set_ylabel(ylabel)
+
         # Set data
         for dependent_label in dependent_labels:
             ys = data[dependent_label]
@@ -126,7 +131,7 @@ class FDDReporting:
     
     def log_exception(self, exception: FDDException, 
                       create_image: bool = True, 
-                      chart_properties: MutableMapping[str,str] = None):
+                      chart_properties: MutableMapping[str,str] = {}):
         """Given a specific failure, log the rule broken and give metadata
         on the broken rule
         inputs

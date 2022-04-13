@@ -165,7 +165,7 @@ Temperature drop across inactive cooling coil
 Temperature rise across inactive heating coil
 
 # Testing
-from project root (trendreview) at the terminal: `python -m unittest discover tests "test_*.py"`
+from 'src' directory at the terminal: `python -m unittest discover tests "test_*.py"`
 
 # Building publishing
 Increment build version in setup.cfg

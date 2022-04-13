@@ -8,7 +8,8 @@ Custom exceptions raised during fault detection
 """
 
 # Python imports
-from typing import List, MutableMapping
+from typing import List, MutableMapping, Union
+from dataclasses import dataclass
 
 # Third party imports
 import pandas as pd
@@ -20,7 +21,7 @@ import pandas as pd
 class FDDException(Exception):
     """Base class for exceptions on fault detection and diagnostics"""
     
-    def __init__(self, message: str, data: MutableMapping[str, List]):
+    def __init__(self, message: str, data: MutableMapping[str, Union[str, List]]):
         """inputs
         -------
         message: (str) error mesage

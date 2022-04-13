@@ -1,0 +1,6 @@
+{
+    "files.autoSave": "afterDelay",
+    "jupyter.sendSelectionToInteractiveWindow": true,
+    "jupyter.notebookFileRoot": "${WorkspaceFolder}/src/",
+    "terminal.integrated.defaultProfile.windows": "Command Prompt (Conda work)",
+}
