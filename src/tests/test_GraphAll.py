@@ -26,7 +26,7 @@ from trendreview.FDDExceptions import FDDException
 FILEPATH = '../data/DD03.csv'
 FILEPATH2 = '../data/dd64.csv'
 FILEPATH3 = '../data/ddvav_test.csv'
-LOG_FILEPATH = '../reports/testreport.txt'
+LOG_FILEPATH = '../report/testreport.txt'
 
 #%%
 
