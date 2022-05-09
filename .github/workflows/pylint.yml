@@ -1,0 +1,40 @@
+name: Linting
+on:
+  push:
+    # Run on push to main branch when source files or tests are changed
+    branches:
+      - main
+    paths:
+      - src/tests/
+      - src/trendreview/
+  pull_request:
+    # Run on pull request regardless of directory changed
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+  strategy:
+    matrix:
+      python-version: ["3.8"]
+
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up python ${{ matrix.python-version }}
+      uses: actions/setup-python@v3
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install dependencies for testing
+      run: |
+        python -m pip install --upgrade pip
+        pip install pylint
+
+    - name: Analyze code with pylint
+      run: |
+        pylint --reports n --disable=C src/tests
+        pylint --reports n --disable=C src/trendreview

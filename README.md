@@ -169,7 +169,7 @@ from 'src' directory at the terminal: `python -m unittest discover tests --patte
 
 # Building publishing
 Increment build version in setup.cfg
-python -m build
+python -m build .
 python -m twine upload dist/*
 
 # Linting and coverage
