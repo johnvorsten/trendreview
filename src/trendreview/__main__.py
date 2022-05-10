@@ -8,7 +8,7 @@ from .trendreview import main, parser
 
 # Declarations
 
-#%%
+# %%
 
 if __name__ == '__main__':
     sys.exit(main(parser))

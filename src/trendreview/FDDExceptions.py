@@ -16,11 +16,12 @@ import pandas as pd
 
 # Local imports
 
-#%%
+# %%
+
 
 class FDDException(Exception):
     """Base class for exceptions on fault detection and diagnostics"""
-    
+
     def __init__(self, message: str, data: MutableMapping[str, Union[str, List]]):
         """inputs
         -------
@@ -29,7 +30,7 @@ class FDDException(Exception):
                                          'dependent_axis_labels']"""
         # Exception message, and also message that will be logged for reporting
         self.message = message
-        
+
         # Data that will be used to generate plots
         # require independent variable be labeled with key 'primary_axis_label'
         # Further axes will be plotted on a 2D line/scatter plot
@@ -37,18 +38,20 @@ class FDDException(Exception):
         REQUIRED_LABELS = ['primary_axis_label', 'dependent_axis_labels']
         for label in REQUIRED_LABELS:
             if not data.get(label):
-                raise KeyError("Required key not found in dict: {}".format(label))
+                raise KeyError(
+                    "Required key not found in dict: {}".format(label))
         primary_axis_key = data['primary_axis_label']
         dependent_labels = data['dependent_axis_labels']
         if not data.get(primary_axis_key):
-            msg="Designated primary_axis_label key '{}' is not found or empty".format(primary_axis_key)
+            msg = "Designated primary_axis_label key '{}' is not found or empty".format(
+                primary_axis_key)
             raise KeyError(msg)
         for label in dependent_labels:
             if not data.get(label):
-                msg="Designated dependent_axis_labels key '{}' is not found or empty".format(primary_axis_key)
-                raise KeyError(msg)     
-        
-        self.data = data
-        
-        return None
+                msg = "Designated dependent_axis_labels key '{}' is not found or empty".format(
+                    primary_axis_key)
+                raise KeyError(msg)
 
+        self.data = data
+
+        return None

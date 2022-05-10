@@ -26,41 +26,33 @@ from trendreview.FDDExceptions import FDDException
 FILEPATH = '../data/DD03.csv'
 FILEPATH2 = '../data/dd64.csv'
 FILEPATH3 = '../data/ddvav_test.csv'
-LOG_FILEPATH = '../report/testreport.txt'
+LOG_FILEPATH = '../reports/testreport.txt'
+DEPENDENT_AXIS_NAMES = ['DateTime',
+                        'DischargeTemperature', 'CoolingDamperCommand']
 
-#%%
+# %%
+
 
 class TestGraphAll(unittest.TestCase):
-    
+
     def setUp(self):
-        
+
         self.data = pd.read_csv(FILEPATH, sep=',', parse_dates=['DateTime'])
         self.data3 = pd.read_csv(FILEPATH3, sep=',', parse_dates=['DateTime'])
         self.graphall = GraphAll(FILEPATH3)
-        
+
         return None
-    
+
     def test_graph_all_data(self):
         independent_axis_name = 'DateTime'
-        dependent_axis_names = None # Graph all
         reporter = FDDReporting(log_filepath=LOG_FILEPATH)
-        self.graphall.graph_all_data(reporter, independent_axis_name, dependent_axis_names)
+        self.graphall.graph_all_data(
+            reporter, independent_axis_name, DEPENDENT_AXIS_NAMES)
         return None
-    
-    def test_(self):
-        return None
-    
+
     def test_(self):
         return None
 
+
 if __name__ == '__main__':
     unittest.main()
-    
-    # Alternate methods
-    # def suite():
-    #     suite = unittest.TestSuite()
-    #     suite.addTest(TestDDVAV('test_rule_simultaneous_heating_cooling'))
-    #     suite.addTest(TestDDVAV('test_rule_room_temperature_deviation'))
-    #     return suite
-    # runner = unittest.TextTestRunner()
-    # runner.run(suite())
