@@ -31,6 +31,5 @@ jobs:
 
       - name: Run tests using unittest
         run: |
-          mkdir ./reports
           cd ./src
           python -m unittest discover tests --pattern test_*.py
