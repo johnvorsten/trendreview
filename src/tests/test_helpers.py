@@ -7,6 +7,7 @@ Created on Wed Dec 29 11:02:54 2021
 
 # Python imports
 import unittest
+from datetime import date, time
 
 # Thrid party imports
 import numpy as np
@@ -26,13 +27,15 @@ class TestNumpyDateTimeIterables(unittest.TestCase):
     """Convert datetime strings to numpy iterables"""
 
     def test_date_time_iterables_to_numpy(self):
+        """dates: (list) of strings representing date in format %Y-%m-%d
+        times: (list) of strings representing time in format %H:%M"""
 
-        data = read_csv(FILEPATH, DDVAV_HEADERS, DDVAV_TYPES)
+        data = {
+            "Date": ['2022-01-02', '2022-01-03', '2022-01-04'],
+            "Time":['01:10','10:10','20:21'],
+            }
 
-        dates = [str(x.date()) for x in data["Date"]]
-        times = _correct_time_str_HM(data["Time"].to_list())
-
-        datetimes = _parse_date_time_str_YmdHM(dates, times)
+        datetimes = _parse_date_time_str_YmdHM(data["Date"], data["Time"])
 
         return None
 
