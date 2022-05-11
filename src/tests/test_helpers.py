@@ -6,8 +6,7 @@ Created on Wed Dec 29 11:02:54 2021
 """
 
 # Python imports
-from typing import List, Iterable
-from datetime import time, date, datetime
+import unittest
 
 # Thrid party imports
 import numpy as np
@@ -23,14 +22,20 @@ FILEPATH2 = '../data/dd64.csv'
 
 # %%
 
+class TestNumpyDateTimeIterables(unittest.TestCase):
+    """Convert datetime strings to numpy iterables"""
 
-def test_date_time_iterables_to_numpy():
+    def test_date_time_iterables_to_numpy(self):
 
-    data = read_csv(FILEPATH, DDVAV_HEADERS, DDVAV_TYPES)
+        data = read_csv(FILEPATH, DDVAV_HEADERS, DDVAV_TYPES)
 
-    dates = [str(x.date()) for x in data["Date"]]
-    times = _correct_time_str_HM(data["Time"].to_list())
+        dates = [str(x.date()) for x in data["Date"]]
+        times = _correct_time_str_HM(data["Time"].to_list())
 
-    datetimes = _parse_date_time_str_YmdHM(dates, times)
+        datetimes = _parse_date_time_str_YmdHM(dates, times)
 
-    return None
+        return None
+
+
+if __name__ == '__main__':
+    unittest.main()
