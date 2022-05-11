@@ -29,15 +29,16 @@ import pandas as pd
 import numpy as np
 
 # Local imports
-from .FDDExceptions import FDDException
-from .reporting import FDDReporting
-from .helpers import (masked_consecutive_elements,
-                      read_csv,
-                      _datetimes_to_seconds_deviation_from_start,
-                      _hour_segment_indices_from_seconds,
-                      maximum_allowed_failures,
-                      maximum_consecutive_failures,
-                      failure_threshold_exceeded)
+from trendreview.FDDExceptions import FDDException
+from trendreview.reporting import FDDReporting
+from trendreview.helpers import (
+    masked_consecutive_elements,
+    read_csv,
+    _datetimes_to_seconds_deviation_from_start,
+    _hour_segment_indices_from_seconds,
+    maximum_allowed_failures,
+    maximum_consecutive_failures,
+    failure_threshold_exceeded)
 # Declarations
 DDVAV_HEADERS = [
     'DateTime', 'DischargeTemperature', 'CoolingDamperCommand',
@@ -324,8 +325,8 @@ class DDVAVRules:
     def rule_heating_airflow_on_closed_damper(cls, data: pd.DataFrame):
         """Airflow is calculated to pass by damper when damper is commanded
         closed
-        Rule fails if - 
-        1. Airflow is greater than 10[cfm](default) AND damper position is 
+        Rule fails if
+        1. Airflow is greater than 10[cfm](default) AND damper position is
         <2[%](default)"""
         # Tolerance for considering airflow at zero
         tolerance = 10

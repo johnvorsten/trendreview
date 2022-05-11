@@ -1,3 +1,4 @@
+[![Tests](https://github.com/johnvorsten/trendreview/actions/workflows/python-app.yml/badge.svg)](https://github.com/johnvorsten/learning_main/actions/workflows/python-app.yml) ![coverage](https://img.shields.io/static/v1?label=Coverage&message=84%&color=green)
 
 # Purpose
 This software was created to simply trend review of certain classes of HVAC equipment, following ASHRAE guideline 36 'High Performance Sequence of Operations for HVAC Systems'
@@ -173,6 +174,6 @@ python -m build .
 python -m twine upload dist/*
 
 # Linting and coverage
-coverage run -m unittest src/tests/
+From 'src' directory at terminal: `coverage run -m unittest discover tests/`
 pylint -r n src/tests/
 pylint -r n src/trendreview/

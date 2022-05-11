@@ -9,10 +9,8 @@ Custom exceptions raised during fault detection
 
 # Python imports
 from typing import List, MutableMapping, Union
-from dataclasses import dataclass
 
 # Third party imports
-import pandas as pd
 
 # Local imports
 
@@ -28,6 +26,7 @@ class FDDException(Exception):
         message: (str) error mesage
         data: (dict) with required keys ['primary_axis_label', 
                                          'dependent_axis_labels']"""
+        super().__init__()
         # Exception message, and also message that will be logged for reporting
         self.message = message
 

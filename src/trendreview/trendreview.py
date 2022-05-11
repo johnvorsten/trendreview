@@ -13,19 +13,25 @@ import sys
 # Third party imports
 
 # Local imports
-from .ddvav import DDVAVRules
-from .GraphAll import GraphAll
-from .reporting import FDDImageGeneration, FDDReporting
-from .FDDExceptions import FDDException
+from trendreview.ddvav import DDVAVRules
+from trendreview.GraphAll import GraphAll
+from trendreview.reporting import FDDImageGeneration, FDDReporting
+from trendreview.FDDExceptions import FDDException
 
 # Declarations
 SUPPORTED_EQUIPMENT = ['ddvav', 'GraphAll']
-description = """Fault Diagnostics and Detection for trend review of mechanical 
-equipment"""
+description = """
+Fault Diagnostics and Detection for trend review of mechanical equipment
+"""
 DESCRIPTION_GRAPH_COLUMNS = """
 Only graph the specified columns on the dependent axis when 
 using the "GraphAll" option. Specify column header names with 
 a space between each name. To graph all columns omit this argument.
+"""
+DESCRIPTION_SUPPORTED_EQUIPMENT = f"""
+Type of mechanical equipment being trended. Must
+be one of {SUPPORTED_EQUIPMENT}. Use GraphAll to create a graph of every
+data column versus the primary axis (default: DateTime).
 """
 parser = argparse.ArgumentParser(description=description)
 parser.add_argument('--filepath', '-f', type=os.path.abspath,
@@ -34,9 +40,7 @@ parser.add_argument('--filepath', '-f', type=os.path.abspath,
 parser.add_argument('--type', '-t', type=str,
                     choices=SUPPORTED_EQUIPMENT, required=True,
                     dest='type',
-                    help=('Type of mechanical equipment being trended. Must ' +
-                          'be one of {}. Use GraphAll to create a graph of every ' +
-                          'data column versus the primary axis (DateTime)'.format(SUPPORTED_EQUIPMENT)))
+                    help=DESCRIPTION_SUPPORTED_EQUIPMENT)
 parser.add_argument('--report-path', type=argparse.FileType('w', encoding='utf-8'),
                     required=False, default='./report.txt',
                     dest='log_filepath',
@@ -51,29 +55,6 @@ parser.add_argument('--graph-columns', type=str, action='extend', nargs='+',
                     required=False, help=DESCRIPTION_GRAPH_COLUMNS)
 
 # %%
-
-
-def test_parse_args():
-
-    filepath = './data/ddvav_test.csv'
-    args = ['--filepath', filepath, '--type', 'ddvav', '--report-path', './custom-report.txt',
-            '--graph-columns', 'column a', 'column b', 'column c', '--datetime-header', 'timestamp']
-    namespace = parser.parse_args(args)
-    filepath = os.path.abspath(namespace.filepath)
-    equipment_type = namespace.type
-    log_filepath = os.path.abspath(namespace.log_filepath.name)
-    namespace.log_filepath.close()
-    independent_axis_name = namespace.independent_axis_name
-    graph_columns = namespace.graph_columns
-    print(namespace)
-
-    args = ['--filepath', filepath, '--type', 'ddvav', '--report-path', './custom-report.txt',
-            '--graph-columns', 'column a', 'column b', 'column c', '--datetime-header', 'timestamp']
-    namespace = parser.parse_args(args)
-    print(namespace)
-
-    return None
-
 
 def main(parser: argparse.ArgumentParser):
     """Entrypoint

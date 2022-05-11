@@ -19,8 +19,11 @@ from trendreview.FDDExceptions import FDDException
 
 
 class FDDExceptionTest(unittest.TestCase):
+    """Create an FDD exception and attempt to write the exception to file
+    """
 
     def setUp(self):
+        """Create dummy data"""
         self.msg = """Excessive deviation in process variable versus setpoint. 1.25 DegF*hour 
         calculated deviation during hour long measurement period; threshold=1
         Failure threshold exceeded"""
@@ -69,6 +72,36 @@ class FDDExceptionTest(unittest.TestCase):
 
     def test_init(self):
 
-        exception = FDDException(self.msg, self.data)
+        FDDException(self.msg, self.data)
+
+        return None
+
+    def test_init_without_primary_axis_key(self):
+        """Data must contain label of primary key related to
+        independent axis label"""
+        self.data.pop('primary_axis_label')
+
+        with self.assertRaises(KeyError):
+            FDDException(self.msg, self.data)
+
+        return None
+
+    def test_init_without_dependent_axis_labels(self):
+        """Data must contain label of primary key related to
+        independent axis label"""
+        self.data.pop('dependent_axis_labels')
+
+        with self.assertRaises(KeyError):
+            FDDException(self.msg, self.data)
+
+        return None
+
+    def test_init_without_dependent_labels(self):
+        """Data must contain data related to all keys within 'dependent_axis_labels'
+        """
+        self.data.pop('RoomTemperature')
+
+        with self.assertRaises(KeyError):
+            FDDException(self.msg, self.data)
 
         return None
