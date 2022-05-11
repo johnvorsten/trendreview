@@ -21,16 +21,16 @@ from trendreview.ddvav import DDVAV_HEADERS, DDVAV_TYPES
 FILEPATH = '../data/DD03.csv'
 FILEPATH2 = '../data/dd64.csv'
 
-#%%
+# %%
+
 
 def test_date_time_iterables_to_numpy():
-    
+
     data = read_csv(FILEPATH, DDVAV_HEADERS, DDVAV_TYPES)
 
     dates = [str(x.date()) for x in data["Date"]]
     times = _correct_time_str_HM(data["Time"].to_list())
 
     datetimes = _parse_date_time_str_YmdHM(dates, times)
-    
-    return None
 
+    return None
