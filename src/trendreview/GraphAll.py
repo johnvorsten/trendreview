@@ -123,9 +123,7 @@ class GraphAll:
                 f"Specify dependent axis labels to be plotted. Got {dependent_axis_names}")
 
         # Generic message
-        msg = "Graph of {} versus {}".format(
-            dependent_axis_names,
-            independent_axis_name)
+        msg = f"Graph of {dependent_axis_names} versus {independent_axis_name}"
         # Collect data
         columns: List[str] = []
         columns.append(independent_axis_name)

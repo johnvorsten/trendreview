@@ -56,6 +56,7 @@ parser.add_argument('--graph-columns', type=str, action='extend', nargs='+',
 
 # %%
 
+
 def main(parser: argparse.ArgumentParser):
     """Entrypoint
     Parse user arguments and being based on arguments"""

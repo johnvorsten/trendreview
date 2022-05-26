@@ -24,6 +24,7 @@ pstats_filepath = os.path.abspath("../reports/pstats_out.txt")
 
 
 def profile(fnc):
+    """Code profiling for long run time of certain graphing issues"""
 
     def inner(*args, **kwargs):
 

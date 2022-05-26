@@ -84,7 +84,7 @@ class TestGraphAll(unittest.TestCase):
         equal the values output from the parser"""
 
         args = ['--filepath', FILEPATH, '--type', 'ddvav', '--report-path', REPORT_FILEPATH,
-                '--graph-columns', 'column a', 'column b', 'column c', 
+                '--graph-columns', 'column a', 'column b', 'column c',
                 '--datetime-header', 'timestamp']
         namespace = parser.parse_args(args)
         filepath = os.path.abspath(namespace.filepath)
@@ -95,14 +95,16 @@ class TestGraphAll(unittest.TestCase):
         graph_columns = namespace.graph_columns
         self.assertEqual(equipment_type, 'ddvav')
         self.assertEqual(independent_axis_name, 'timestamp')
-        self.assertListEqual(graph_columns, ['column a', 'column b', 'column c'])
+        self.assertListEqual(
+            graph_columns, ['column a', 'column b', 'column c'])
 
         args = ['--filepath', filepath, '--type', 'ddvav', '--report-path', REPORT_FILEPATH,
-                '--graph-columns', 'column a', 'column b', 'column c', 
+                '--graph-columns', 'column a', 'column b', 'column c',
                 '--datetime-header', 'timestamp']
         namespace = parser.parse_args(args)
 
         return None
+
 
 if __name__ == '__main__':
     unittest.main()

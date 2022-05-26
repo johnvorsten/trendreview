@@ -42,13 +42,11 @@ class FDDException(Exception):
         primary_axis_key = data['primary_axis_label']
         dependent_labels = data['dependent_axis_labels']
         if not data.get(primary_axis_key):
-            msg = "Designated primary_axis_label key '{}' is not found or empty".format(
-                primary_axis_key)
+            msg = f"Designated primary_axis_label key '{primary_axis_key}' is not found or empty"
             raise KeyError(msg)
         for label in dependent_labels:
             if not data.get(label):
-                msg = "Designated dependent_axis_labels key '{}' is not found or empty".format(
-                    primary_axis_key)
+                msg = f"Designated dependent_axis_labels key '{primary_axis_key}' is not found or empty"
                 raise KeyError(msg)
 
         self.data = data

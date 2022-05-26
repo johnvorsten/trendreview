@@ -135,7 +135,7 @@ class DDVAVRules:
         heating = np.ma.array(data["HeatingAirVolume"] > tolerance)
         cooling = np.ma.array(data["CoolingAirVolume"] > tolerance)
         overlap = np.bitwise_and(heating, cooling)  # masked array
-        overlap_indices = overlap.nonzero()
+        overlap_indices: tuple = overlap.nonzero()
 
         # Failure condition n% ofovservations
         max_overlap = math.floor(failure_percent * len(heating))

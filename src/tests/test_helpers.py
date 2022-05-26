@@ -23,6 +23,7 @@ FILEPATH2 = '../data/dd64.csv'
 
 # %%
 
+
 class TestNumpyDateTimeIterables(unittest.TestCase):
     """Convert datetime strings to numpy iterables"""
 
@@ -32,8 +33,8 @@ class TestNumpyDateTimeIterables(unittest.TestCase):
 
         data = {
             "Date": ['2022-01-02', '2022-01-03', '2022-01-04'],
-            "Time":['01:10','10:10','20:21'],
-            }
+            "Time": ['01:10', '10:10', '20:21'],
+        }
 
         datetimes = _parse_date_time_str_YmdHM(data["Date"], data["Time"])
 

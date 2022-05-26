@@ -32,6 +32,7 @@ FILEPATH3 = '../data/ddvav_test.csv'
 
 
 class TestDDVAV(unittest.TestCase):
+    """Test file src/trendreview/ddvav.py"""
 
     def setUp(self):
 
@@ -42,6 +43,10 @@ class TestDDVAV(unittest.TestCase):
         return None
 
     def test_masked_consecutive_elements(self):
+        """A rule must fail when consecutive elements are True for n or more 
+        elements in a row.
+        masked_consecutive_elements returns the position in a passed array
+        where the number of consecutive elements exceeds the passed n"""
         # Rising edge at indicy 3
         data = np.ma.MaskedArray([0, 0, 0, 1, 1, 1, 1, 0, 0, 0])
         res = masked_consecutive_elements(data, 3)
@@ -66,7 +71,8 @@ class TestDDVAV(unittest.TestCase):
         return None
 
     def test_integration_over_time(self):
-
+        """Given a control setpoint and process variable, integrate the
+        error accumulated over time"""
         # Theory testing
         control = [10] * 5  # setpoint
         process = [7, 8, 9, 10, 11]  # process variable
@@ -97,7 +103,7 @@ class TestDDVAV(unittest.TestCase):
         return None
 
     def test_get_methods(self):
-
+        """Get all methods within a class that contain a string pattern"""
         methods = self.ddvavRules.get_rules()
         for method in methods:
             self.assertTrue(str(method).__contains__("rule_"))
@@ -105,13 +111,15 @@ class TestDDVAV(unittest.TestCase):
         return None
 
     def test_rule_simultaneous_heating_cooling(self):
-
+        """See rule and documentation defined in ddvav.py"""
         with self.assertRaises(FDDException):
             self.ddvavRules.rule_simultaneous_heating_cooling(self.data3)
 
         return None
 
     def test_rule_cooling_airflow_on_closed_damper(self):
+        """See rule and documentation defined in ddvav.py"""
+
         # Data row 20-26
         with self.assertRaises(FDDException):
             self.ddvavRules.rule_cooling_airflow_on_closed_damper(self.data3)
@@ -119,42 +127,51 @@ class TestDDVAV(unittest.TestCase):
         return None
 
     def test_rule_heating_airflow_on_closed_damper(self):
+        """See rule and documentation defined in ddvav.py"""
+
         # Data row 27-32
         with self.assertRaises(FDDException):
             self.ddvavRules.rule_heating_airflow_on_closed_damper(self.data3)
         return None
 
     def test_rule_cooling_damper_stuck(self):
+        """See rule and documentation defined in ddvav.py"""
+
         # Data row 39-46
         with self.assertRaises(FDDException):
             self.ddvavRules.rule_cooling_damper_stuck(self.data3)
         return None
 
     def test_rule_heating_damper_stuck(self):
+        """See rule and documentation defined in ddvav.py"""
+
         # Data row 33-38
         with self.assertRaises(FDDException):
             self.ddvavRules.rule_heating_damper_stuck(self.data3)
         return None
 
     def test_rule_cooling_opposed_mode(self):
+        """See rule and documentation defined in ddvav.py"""
+
         # Data row 50-59
         with self.assertRaises(FDDException):
             self.ddvavRules.rule_cooling_opposed_mode(self.data3)
         return None
 
     def test_rule_heating_opposed_mode(self):
+        """See rule and documentation defined in ddvav.py"""
+
         # Data row 60-69
         with self.assertRaises(FDDException):
             self.ddvavRules.rule_heating_opposed_mode(self.data3)
         return None
 
     def test_rule_room_temperature_deviation(self):
+        """See rule and documentation defined in ddvav.py"""
+
         # Data row 74-86
         with self.assertRaises(FDDException):
             self.ddvavRules.rule_room_temperature_deviation(self.data3)
-        return None
-
-    def test_(self):
         return None
 
     def test_(self):

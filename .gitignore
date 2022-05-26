@@ -9,6 +9,7 @@ report.txt
 **.pyc
 .coverage
 *report*.txt
+**/*.egg*
 
 # Negations
 !./figure1.png
