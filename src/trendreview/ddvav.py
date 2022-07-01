@@ -11,18 +11,19 @@ Logic
 1. Load data into pandas dataframe
 2. Apply rules along data (see rules)
 3. If a rule check is broken, then raise a custom exception
-4. The exception will be caught the the calling function and handed to the 
+4. The exception will be caught the the calling function and handed to the
 reporting class which logs the broken rule
 5. The exception will be handed to a plotting class which will create a plot
-of the broken rule, and apply visual formatting. The plot is saved to a 
+of the broken rule, and apply visual formatting. The plot is saved to a
 configurable location
-6. 
+6.
 """
 
 # Python imports
 from typing import List, Callable
 import inspect
 import math
+import csv
 
 # Third party imports
 import pandas as pd
@@ -83,6 +84,7 @@ class DDVAVRules:
         unit to open, parse, and apply rule checks to"""
 
         self.csv_filepath = filepath
+        validate_input_data_headers(filepath, DDVAV_HEADERS)
         self.data = read_csv(self.csv_filepath, DDVAV_HEADERS, DDVAV_TYPES)
 
         return None
@@ -103,8 +105,8 @@ class DDVAVRules:
         for method in methods:
             try:
                 method(self.data)
-            except FDDException as e:
-                reporter.log_exception(e, create_image=True)
+            except FDDException as exception:
+                reporter.log_exception(exception, create_image=True)
         return None
 
     def get_rules(self):
@@ -113,17 +115,18 @@ class DDVAVRules:
         methods = []
         for name in dir(self):
             attribute = getattr(self, name)
-            if inspect.ismethod(attribute) and str(attribute).__contains__('.rule_'):
+            if inspect.ismethod(attribute) and str(
+                    attribute).__contains__('.rule_'):
                 methods.append(attribute)
 
         return methods
 
     @classmethod
     def rule_simultaneous_heating_cooling(cls, data: pd.DataFrame):
-        """Iterate over heating and cooling airflow values. 
-        Rule fails if - 
-        1. heating and cooling volumetric flow is overlapping, where airflow > 
-        0 for either heating or cooling duct while the other duct is > 0 for 
+        """Iterate over heating and cooling airflow values.
+        Rule fails if -
+        1. heating and cooling volumetric flow is overlapping, where airflow >
+        0 for either heating or cooling duct while the other duct is > 0 for
         more than n% ofobservations OR n consecutive observations"""
         # Tolerance for considering airflow at zero
         tolerance = 10
@@ -168,8 +171,8 @@ class DDVAVRules:
 
     @classmethod
     def rule_heating_opposed_mode(cls, data: pd.DataFrame):
-        """Iterate over heating and cooling airflow values. 
-        Rule fails if - 
+        """Iterate over heating and cooling airflow values.
+        Rule fails if -
         1. heating/cooling occurs with the incorrect state in HeatCoolMode
         HeatingAirVolume > 0 when HeatCoolMode is in 'COOL'
         CoolingAirVolume > 0 when HeatCoolMode is in 'HEAT'
@@ -200,8 +203,8 @@ class DDVAVRules:
 
     @classmethod
     def rule_cooling_opposed_mode(cls, data: pd.DataFrame):
-        """Iterate over heating and cooling airflow values. 
-        Rule fails if - 
+        """Iterate over heating and cooling airflow values.
+        Rule fails if -
         1. heating/cooling occurs with the incorrect state in HeatCoolMode
         HeatingAirVolume > 0 when HeatCoolMode is in 'COOL'
         CoolingAirVolume > 0 when HeatCoolMode is in 'HEAT'
@@ -232,7 +235,7 @@ class DDVAVRules:
     @classmethod
     def rule_cooling_damper_stuck(cls, data: pd.DataFrame):
         """Damper position does not match damper command
-        Rule fails if - 
+        Rule fails if -
         1. Damper position and command are >5% different
         """
         # configuration
@@ -262,7 +265,7 @@ class DDVAVRules:
     @classmethod
     def rule_heating_damper_stuck(cls, data: pd.DataFrame):
         """Damper position does not match damper command
-        Rule fails if - 
+        Rule fails if -
         1. Damper position and command are >5% different
         """
         # configuration
@@ -293,8 +296,8 @@ class DDVAVRules:
     def rule_cooling_airflow_on_closed_damper(cls, data: pd.DataFrame):
         """Airflow is calculated to pass by damper when damper is commanded
         closed
-        Rule fails if - 
-        1. Airflow is greater than 10[cfm](default) AND damper position is 
+        Rule fails if -
+        1. Airflow is greater than 10[cfm](default) AND damper position is
         <2[%](default)"""
         # Tolerance for considering airflow at zero
         tolerance = 10
@@ -356,7 +359,7 @@ class DDVAVRules:
     @classmethod
     def rule_damper_position_airflow_relationship(cls, data: pd.DataFrame):
         """Not implemented
-        Ideally, understand the relationship between damper position and 
+        Ideally, understand the relationship between damper position and
         calculated airflow. The intention is find misconfigured or backwards
         mounted actuators. However, controls can configure reverse or direct
         acting control, and increasing damper command may not correspond to
@@ -366,9 +369,9 @@ class DDVAVRules:
     @classmethod
     def rule_room_temperature_deviation(cls, data: pd.DataFrame):
         """Test for room temperature ability to reach setpoint
-        Rule fails if - 
-        1. room temperature deviates from control setpoint as measured by 
-        integral of measured temperature versus setpoint by > 1 Degree*hour per 
+        Rule fails if -
+        1. room temperature deviates from control setpoint as measured by
+        integral of measured temperature versus setpoint by > 1 Degree*hour per
         hour measured"""
         # Tolerance for considering airflow at zero
         failure_threshold = 1  # [Degree * hour]
@@ -397,3 +400,37 @@ class DDVAVRules:
                 )
 
         return None
+
+
+def validate_input_data_headers(
+        filepath: str, required_headers: List[str]) -> None:
+    """Validate that all input data contains the headers required by these
+    rules and data formatting.
+    This function is called to give the user more informative messages than
+    errors raised by pandas if a user does not have the required headrs"""
+
+    # Open .csv file with simple csv reader to parse first row of headers
+    with open(filepath, newline='', encoding='UTF-8') as csvfile:
+        reader = csv.reader(csvfile, delimiter=',', quoting=csv.QUOTE_MINIMAL)
+        supplied_headers: List[str] = next(reader)
+
+    if set(required_headers).issubset(set(supplied_headers)):
+        # All required headers are found within passed data
+        pass
+    else:
+        missing_headers: set = set(
+            required_headers).difference(supplied_headers)
+        msg = ("The user passed file does not contain all of the required headers.\n" +
+               f"Missing headers: {missing_headers}\n" +
+               f"Requred headers: {required_headers}\n" +
+               f"Supplied headers: {supplied_headers}")
+        raise ValueError(msg)
+
+    difference: set = set(supplied_headers).difference(required_headers)
+    if len(difference) > 0:
+        msg: str = ("INFO: Extra data columns were passed through user csv " +
+                    "file that will be igored by" +
+                    f" this dual-duct VAV rule checker. Unused column headers: {difference}")
+        print(msg)
+
+    return None

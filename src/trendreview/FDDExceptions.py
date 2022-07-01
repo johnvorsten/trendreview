@@ -24,7 +24,7 @@ class FDDException(Exception):
         """inputs
         -------
         message: (str) error mesage
-        data: (dict) with required keys ['primary_axis_label', 
+        data: (dict) with required keys ['primary_axis_label',
                                          'dependent_axis_labels']"""
         super().__init__()
         # Exception message, and also message that will be logged for reporting
@@ -34,11 +34,11 @@ class FDDException(Exception):
         # require independent variable be labeled with key 'primary_axis_label'
         # Further axes will be plotted on a 2D line/scatter plot
         # Based on key dependent_axis_labels
-        REQUIRED_LABELS = ['primary_axis_label', 'dependent_axis_labels']
-        for label in REQUIRED_LABELS:
+        required_labels = ['primary_axis_label', 'dependent_axis_labels']
+        for label in required_labels:
             if not data.get(label):
                 raise KeyError(
-                    "Required key not found in dict: {}".format(label))
+                    f"Required key not found in dict: {label}")
         primary_axis_key = data['primary_axis_label']
         dependent_labels = data['dependent_axis_labels']
         if not data.get(primary_axis_key):

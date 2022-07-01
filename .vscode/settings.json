@@ -5,4 +5,5 @@
     "terminal.integrated.defaultProfile.windows": "Command Prompt (Conda work)",
     "python.linting.pylintEnabled": true,
     "python.linting.enabled": true,
+    "python.terminal.activateEnvironment":true,
 }

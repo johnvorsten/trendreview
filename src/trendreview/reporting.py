@@ -14,6 +14,7 @@ from typing import MutableMapping
 import os
 import glob
 import re
+from typing import List
 
 # Third party imports
 import matplotlib.pyplot as plt
@@ -60,29 +61,29 @@ class FDDImageGeneration:
         x_data = data[independent_label]
 
         # Create the image
-        fig, ax = plt.subplots(1, 1)
+        fig, axes = plt.subplots(1, 1)
 
         # Set axes x and y label
-        ax.set_xlabel(independent_label)
+        axes.set_xlabel(independent_label)
         ylabel = str()
         for idx, label in enumerate(dependent_labels):
             if idx % 2 == 0:
                 ylabel += ", " + label
             if idx % 2 == 1:
                 ylabel += "\n" + label
-        ax.set_ylabel(ylabel)
+        axes.set_ylabel(ylabel)
 
         # Set data
         for dependent_label in dependent_labels:
-            ys = data[dependent_label]
-            lines = ax.plot(x_data, ys,
+            y_values = data[dependent_label]
+            lines = axes.plot(x_data, y_values,
                             label=dependent_label, **chart_properties)
 
-        ax.legend()
+        axes.legend()
 
         # Format dates on X axis
         locator = AutoDateLocator()
-        ax.xaxis.set_major_locator(locator)
+        axes.xaxis.set_major_locator(locator)
         fig.autofmt_xdate()
 
         return fig
@@ -107,23 +108,26 @@ class FDDImageGeneration:
         fig_number = 1
         names = glob.glob(
             (os.path.normpath(save_directory) + os.path.sep + cls.base_imgname +
-             '[0-9]' + '.' + cls.img_format)
+             '[0-9]*' + '.' + cls.img_format)
         )
         if len(names) == 0:
             return fig_number
         else:
             img_format = cls.img_format
             reg = re.compile('[0-9]*' + '(?=\.' + img_format + ')')
-            try:
-                match = reg.search(names[-1])
-                # [figure1.png, figure2.png, figure3.png] return '3' from figure3.png
-                fig_number = int(names[-1][match.start():match.end()])
-            except:
-                # Possible type error, regardless we are OK with overwriting an image within
-                # The given directory, and reutrning fig_number 1
-                pass
+            fig_numbers: List[int] = []
+            for name in names:
+                try:
+                    match = reg.search(name)
+                    # [figure1.png, figure2.png, figure3.png] return '3' from figure3.png
+                    fig_number = int(name[match.start():match.end()])
+                    fig_numbers.append(fig_number)
+                except Exception:
+                    # Possible type error, regardless we are OK with overwriting an image within
+                    # The given directory, and reutrning fig_number 1
+                    pass
 
-        return fig_number
+        return max(fig_numbers)
 
 
 class FDDReporting:
@@ -158,14 +162,14 @@ class FDDReporting:
                 exception, chart_properties)
             self.imageGenerator.save_image(img)
 
-        with open(self.log_filepath, 'at+') as f:
-            f.write("Issue #" + str(self.log_index) + '\n')
-            f.write(exception.message + '\n')
+        with open(self.log_filepath, 'at+', encoding='UTF-8') as file:
+            file.write("Issue #" + str(self.log_index) + '\n')
+            file.write(exception.message + '\n')
             if create_image:
-                f.write("See figure" +
+                file.write("See figure" +
                         str(self.imageGenerator.image_number - 1)
                         + '.png\n')
-            f.write('\n\n')
+            file.write('\n\n')
 
         self.log_index += 1
 

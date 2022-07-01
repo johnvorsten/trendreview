@@ -16,33 +16,60 @@ author John Vorsten
 # Python imports
 import csv
 from typing import List
+from argparse import ArgumentParser
+from pathlib import Path
+import os
 
 # Third party imports
 
 # Local imports
 
 # Declarations
-OUTPUT_CSV = r"N:\hou\2021\21934-00\60 Commissioning\06 Submittals & Submittal Reviews\ACB_vault2_trend_clean.csv"
-INPUT_CSV = r"N:\hou\2021\21934-00\60 Commissioning\06 Submittals & Submittal Reviews\ACB_vault2_trend.csv"
+DEFAULT_OUTPUT_CSV = 'clean_csv.csv'
+parser = ArgumentParser(description="Input .csv file path to be cleaned")
+parser.add_argument('-i', '--input-file', type=str, required=True,
+                    help='Input csv file to be cleaned')
+parser.add_argument('-o', '--output-file',
+                    type=Path, required=False,
+                    help="Output file name or path")
+parser.add_argument('-a', '--filter-alphabetic', type=bool, required=False,
+                    default=False,
+                    help="Filter out Alphabetic lines which contain alphabetic characters")
+args = parser.parse_args()
+INPUT_CSV = args.input_file
+if args.output_file:
+    OUTPUT_CSV = args.output_file
+else:
+    OUTPUT_CSV = os.path.join(os.path.dirname(args.input_file), DEFAULT_OUTPUT_CSV)
+
 # Rules for line deletion
 
 # %%
 
-
-def _is_line_empty(line: List[str]):
-
-    for text in line:
-        if text != '':
-            return False
+def _is_line_empty(line: List[str]) -> bool:
+    """A line is empty if its first entry contains an empty string ''"""
+    if line[0] != '':
+        return False
 
     return True
 
+def _is_any_text_empty(line: List[str]) -> bool:
+    """A text is empty if it equals an empty string ''
+    Assume that if any line contains an empty entry then the data on this
+    line is corrupted"""
 
-def _is_line_primarily_numeric(line: List[str], threshold: float = 0.05):
+    for text in line:
+        if text == '':
+            return True
+
+    return False
+
+def _is_line_primarily_numeric(line: List[str], threshold: float = 0.05) -> bool:
+    """Determine if the majority of characters on a line are numeric
+    If the default threshold of 5% alphabetic characters is exceeded then
+    the line is considered to not be primarily numeric"""
     n_numeric: int = 0
     n_alphabetic: int = 0
-
-
 
     for text in line:
         if text.replace('.', '', 1).isnumeric():
@@ -59,12 +86,45 @@ def _is_line_primarily_numeric(line: List[str], threshold: float = 0.05):
     else:
         return True
 
+def _is_number_of_colmns_match_header_columns(line: List[str], n_headers: int) -> bool:
+    """Determine if the number of data columns matches the number of header columns.
+    If a line contains empty entries we can assume that the line is not valid"""
+    n_empty: int = 0
+    n_not_empty: int = 0
+
+    for text in line:
+        if text != '':
+            n_not_empty += 1
+        else:
+            n_empty += 1
+
+    if n_not_empty != n_headers:
+        return False
+
+    return True
+
+def _filter1(row: List[str]) -> bool:
+    """Filter1 determines if a row either contains empty columns OR
+    if hte row is primarily numeric (greater than 95% numeric characters default)"""
+
+    if any((_is_any_text_empty(row), not _is_line_primarily_numeric(row))):
+        return True
+
+    return False
+
+def _filter2(row: List[str]) -> bool:
+    """Filter2 determines if a row either contains empty columns"""
+
+    if _is_any_text_empty(row):
+        return True
+
+    return False
 
 def main():
     """Read a .csv file and write valid lines to a new file
     Lines are invalid if:
     1. If a line contains no data, then remove the line
-    2. This data is primarily numeric. If the data is primarily (greater than 5%) 
+    2. This data is primarily numeric. If the data is primarily (greater than 5%)
     word characters then remove the line
     """
 
@@ -78,12 +138,21 @@ def main():
 
         row: List[str]
         for row in reader:
-            if any((_is_line_empty(row), not _is_line_primarily_numeric(row))):
-                pass
+            # Filter out alphabetic characters
+            if args.filter_alphabetic:
+                if _filter1(row):
+                    pass
+                else:
+                    writer.writerow(row)
+            # Only filter out lines containing empty columns
             else:
-                writer.writerow(row)
+                if _filter2(row):
+                    pass
+                else:
+                    writer.writerow(row)
 
     return None
+
 
 if __name__ == '__main__':
     main()

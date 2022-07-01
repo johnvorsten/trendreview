@@ -10,6 +10,7 @@ report.txt
 .coverage
 *report*.txt
 **/*.egg*
+venv/**
 
 # Negations
 !./figure1.png
