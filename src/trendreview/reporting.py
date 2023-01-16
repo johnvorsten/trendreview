@@ -98,6 +98,7 @@ class FDDImageGeneration:
         fig.savefig(filename, dpi='figure', format=self.img_format,
                     bbox_inches='tight')
         self.image_number += 1
+        plt.close(fig) # Free memory
 
         return None
 

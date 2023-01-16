@@ -13,7 +13,7 @@ Logic
 """
 
 # Python imports
-from typing import List, Callable, Dict
+from typing import List, Callable, Dict, MutableMapping
 import inspect
 import math
 
@@ -31,7 +31,7 @@ HEADERS = ['DateTime',
 TYPES = {'DateTime': object,
          }
 
-chart_properties = {
+chart_properties: Dict[str, str] = {
     'color': 'b',  # Blue
     'dash_capstyle': 'butt',  # Doesnt matter with scatter
     'marker': '.',  # point, could also try pixel depending on amount of data
@@ -104,8 +104,9 @@ class GraphAll:
             self,
             reporter: FDDReporting,
             independent_axis_name: str = 'DateTime',
-            dependent_axis_names: List[str] = None) -> None:
-        """Plot multiple dependent variables agaist a single axis. For example, graph
+            dependent_axis_names: List[str] = None,
+            chart_properties: MutableMapping[str, str]={}) -> None:
+        """Plot multiple dependent variables against a single axis. For example, graph
         multiple variables against time, with both dependent variables appearing on a 
         common dependent axis
 
@@ -145,7 +146,7 @@ class GraphAll:
         # Create visualization and report
         reporter.log_exception(
             fddexception, create_image=True,
-            chart_properties={})
+            chart_properties=chart_properties)
 
         return None
 

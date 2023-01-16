@@ -4,7 +4,7 @@ Created 2022-5-26
 
 Remove bad lines from a .csv file based on a set of rules
 1. If a line contains no data, then remove the line
-2. This data is primarily numeric. If the data is primarily (greater than 5%)
+2. This data contains higher than 5% alphabetic characters. If the data is highly (greater than 5%)
 word characters then remove the line
 
 Lines are read from an existing .csv file, and written to a new file if the line passes
@@ -105,7 +105,7 @@ def _is_number_of_colmns_match_header_columns(line: List[str], n_headers: int) -
 
 def _filter1(row: List[str]) -> bool:
     """Filter1 determines if a row either contains empty columns OR
-    if hte row is primarily numeric (greater than 95% numeric characters default)"""
+    if the row is primarily numeric (greater than 95% numeric characters default)"""
 
     if any((_is_any_text_empty(row), not _is_line_primarily_numeric(row))):
         return True
@@ -138,7 +138,7 @@ def main():
 
         row: List[str]
         for row in reader:
-            # Filter out alphabetic characters
+            # Filter out empty rows and rows which contain more than 5% alphabetic characters
             if args.filter_alphabetic:
                 if _filter1(row):
                     pass
