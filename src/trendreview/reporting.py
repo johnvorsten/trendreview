@@ -41,8 +41,8 @@ class FDDImageGeneration:
             msg = "Passed path is not a directory: {}".format(save_directory)
             raise ValueError(msg)
         self.save_directory = save_directory
-
-        self.image_number = self.get_highest_img_number(self.save_directory)
+        # Add one in case of existing images
+        self.image_number = self.get_highest_img_number(self.save_directory) + 1
 
         return None
 
@@ -106,7 +106,7 @@ class FDDImageGeneration:
     def get_highest_img_number(cls, save_directory: str) -> int:
         """WIthin a directory, return the highest integer of a file
         matching the name pattern Figure[0-9].png"""
-        fig_number = 1
+        fig_number:int = 0
         names = glob.glob(
             (os.path.normpath(save_directory) + os.path.sep + cls.base_imgname +
              '[0-9]*' + '.' + cls.img_format)
