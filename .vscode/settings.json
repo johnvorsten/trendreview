@@ -1,8 +1,8 @@
 {
     "files.autoSave": "afterDelay",
-    "jupyter.sendSelectionToInteractiveWindow": true,
     "jupyter.notebookFileRoot": "${WorkspaceFolder}/src/",
     "python.linting.pylintEnabled": true,
     "python.linting.enabled": true,
-    "python.terminal.activateEnvironment":true,
+    "python.terminal.activateEnvironment": true,
+    "jupyter.interactiveWindow.textEditor.executeSelection": true,
 }
