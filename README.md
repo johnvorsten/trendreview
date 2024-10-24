@@ -173,6 +173,7 @@ Temperature rise across inactive heating coil
 
 # Testing
 from 'src' directory at the terminal: `python -m unittest discover tests --pattern test_*.py`
+To test the file 'test_data_cleaning_utilities.py': `python -m unittest tests.test_data_cleaning_utilities`
 
 # Building publishing
 Increment build version in setup.cfg

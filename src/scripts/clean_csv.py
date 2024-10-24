@@ -7,6 +7,8 @@ Remove bad lines from a .csv file based on a set of rules
 2. This data contains higher than 5% alphabetic characters. If the data is highly (greater than 5%)
 word characters then remove the line
 
+Replace empty data within a csv file with data from the previous line
+
 Lines are read from an existing .csv file, and written to a new file if the line passes
 both rules listed. This script does NOT check for headers
 
@@ -19,10 +21,12 @@ from typing import List
 from argparse import ArgumentParser
 from pathlib import Path
 import os
+from copy import deepcopy
 
 # Third party imports
 
 # Local imports
+from scripts.data_cleaning_utilities import _fill_empty_line_with_previous_data, _is_line_primarily_numeric, _is_line_empty
 
 # Declarations
 DEFAULT_OUTPUT_CSV = 'clean_csv.csv'
@@ -34,91 +38,40 @@ parser.add_argument('-o', '--output-file',
                     help="Output file name or path")
 parser.add_argument('-a', '--filter-alphabetic', type=bool, required=False,
                     default=False,
-                    help="Filter out Alphabetic lines which contain alphabetic characters")
+                    help="Filter out Alphabetic lines which contain alphabetic characters. \
+                        If a line contains greater than 5% of alphabetic characters then remove the line.")
+parser.add_argument('--replace-empty-line-with-previous-data', type=bool, required=False,
+                    default=False,
+                    help="If a line contains empty strings then replace the empty string with data from the prevous line")
+parser.add_argument('--remove-empty-line', required=False, type=bool,
+                    default=False,
+                    help="If a line starts with an empty string then remove the line entirely")
 args = parser.parse_args()
 INPUT_CSV = args.input_file
 if args.output_file:
     OUTPUT_CSV = args.output_file
 else:
-    OUTPUT_CSV = os.path.join(os.path.dirname(args.input_file), DEFAULT_OUTPUT_CSV)
+    OUTPUT_CSV = os.path.join(os.path.dirname(
+        args.input_file), DEFAULT_OUTPUT_CSV)
 
-# Rules for line deletion
+# Rules to be enforced on parser arguments
+if args.filter_alphabetic == True and any((args.replace_empty_line_with_previous_data == True, args.remove_empty_line == True)):
+    msg: str = "You can only choose to set ONE of the arguments [--filter-alphabetic, --replace-empty-line-with-previous-data, --remove-empty-line] to True"
+    print(msg)
+    exit(1)
+
+if args.replace_empty_line_with_previous_data == True and any((args.filter_alphabetic == True, args.remove_empty_line == True)):
+    msg: str = "You can only choose to set ONE of the arguments [--filter-alphabetic, --replace-empty-line-with-previous-data, --remove-empty-line] to True"
+    print(msg)
+    exit(1)
+
+if args.remove_empty_line == True and any((args.filter_alphabetic == True, args.replace_empty_line_with_previous_data == True)):
+    msg: str = "You can only choose to set ONE of the arguments [--filter-alphabetic, --replace-empty-line-with-previous-data, --remove-empty-line] to True"
+    print(msg)
+    exit(1)
 
 # %%
 
-def _is_line_empty(line: List[str]) -> bool:
-    """A line is empty if its first entry contains an empty string ''"""
-    if line[0] != '':
-        return False
-
-    return True
-
-def _is_any_text_empty(line: List[str]) -> bool:
-    """A text is empty if it equals an empty string ''
-    Assume that if any line contains an empty entry then the data on this
-    line is corrupted"""
-
-    for text in line:
-        if text == '':
-            return True
-
-    return False
-
-def _is_line_primarily_numeric(line: List[str], threshold: float = 0.05) -> bool:
-    """Determine if the majority of characters on a line are numeric
-    If the default threshold of 5% alphabetic characters is exceeded then
-    the line is considered to not be primarily numeric"""
-    n_numeric: int = 0
-    n_alphabetic: int = 0
-
-    for text in line:
-        if text.replace('.', '', 1).isnumeric():
-            n_numeric += 1
-        elif text.isalpha():
-            n_alphabetic += 1
-
-    if n_alphabetic + n_numeric == 0:
-        return False
-    elif len(line) == 0:
-        return False
-    elif n_alphabetic / (n_alphabetic + n_numeric) >= threshold:
-        return False
-    else:
-        return True
-
-def _is_number_of_colmns_match_header_columns(line: List[str], n_headers: int) -> bool:
-    """Determine if the number of data columns matches the number of header columns.
-    If a line contains empty entries we can assume that the line is not valid"""
-    n_empty: int = 0
-    n_not_empty: int = 0
-
-    for text in line:
-        if text != '':
-            n_not_empty += 1
-        else:
-            n_empty += 1
-
-    if n_not_empty != n_headers:
-        return False
-
-    return True
-
-def _filter1(row: List[str]) -> bool:
-    """Filter1 determines if a row either contains empty columns OR
-    if the row is primarily numeric (greater than 95% numeric characters default)"""
-
-    if any((_is_any_text_empty(row), not _is_line_primarily_numeric(row))):
-        return True
-
-    return False
-
-def _filter2(row: List[str]) -> bool:
-    """Filter2 determines if a row either contains empty columns"""
-
-    if _is_any_text_empty(row):
-        return True
-
-    return False
 
 def main():
     """Read a .csv file and write valid lines to a new file
@@ -136,20 +89,34 @@ def main():
         writer = csv.writer(output_file, delimiter=',',
                             quotechar='"', quoting=csv.QUOTE_MINIMAL)
 
-        row: List[str]
+        # Intialize the first read row and the previous row. The first row is the header row
+        row: List[str] = next(reader)
+        previous_row: List[str] = deepcopy(row)
+        writer.writerow(row) # Write the header to the new file
+
         for row in reader:
+
             # Filter out empty rows and rows which contain more than 5% alphabetic characters
             if args.filter_alphabetic:
-                if _filter1(row):
-                    pass
+                if _is_line_primarily_numeric(row):
+                    writer.writerow(row)
+                    continue  # Can only evaluate this rule once per line
+                else:
+                    pass  # Do not write lines with lots of alphabetic characters
+
+            if args.replace_empty_line_with_previous_data:
+                _fill_empty_line_with_previous_data(
+                    new_row=row, previous_row=previous_row)
+                writer.writerow(row)
+                previous_row = deepcopy(row)
+                continue
+
+            if args.remove_empty_line:
+                if _is_line_empty(row):
+                    pass  # Do not write empty lines
                 else:
                     writer.writerow(row)
-            # Only filter out lines containing empty columns
-            else:
-                if _filter2(row):
-                    pass
-                else:
-                    writer.writerow(row)
+                    continue
 
     return None
 

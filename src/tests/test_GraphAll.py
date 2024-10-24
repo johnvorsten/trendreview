@@ -19,7 +19,7 @@ from trendreview.reporting import FDDReporting
 from trendreview.FDDExceptions import FDDException
 
 # Read file into pandas dataframe
-# Relative to project root (not relative to __file__)
+# Relative to project src directory (not relative to __file__)
 FILEPATH = '../data/DD03.csv'
 FILEPATH2 = '../data/dd64.csv'
 FILEPATH3 = '../data/ddvav_test.csv'

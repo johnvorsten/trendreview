@@ -1,8 +1,23 @@
 {
     "files.autoSave": "afterDelay",
-    "jupyter.notebookFileRoot": "${WorkspaceFolder}/src/",
-    "python.linting.pylintEnabled": true,
-    "python.linting.enabled": true,
+    "jupyter.notebookFileRoot": "${WorkspaceFolder}/src",
     "python.terminal.activateEnvironment": true,
     "jupyter.interactiveWindow.textEditor.executeSelection": true,
+    "editor.defaultFormatter": "ms-python.autopep8",
+
+    "python.testing.unittestArgs": [
+        "-v",
+        "-s",
+        "./src/tests",
+        "-p",
+        "test_*.py"
+    ],
+    "python.testing.pytestEnabled": false,
+    "python.testing.unittestEnabled": true,
+    "python.testing.cwd": "${WorkspaceFolder}/src", // Change the working directory to trendreview/src when running unit tests
+    // The unit tests look for files in the ../data/ folder relative to the trendreview/src directory, so the cwd must be changed when running 
+    // Unit tests
+    "python.testing.autoTestDiscoverOnSaveEnabled": false,
+    "python.testing.promptToConfigure": true,
+
 }
