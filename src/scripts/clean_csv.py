@@ -42,7 +42,7 @@ parser.add_argument('-a', '--filter-alphabetic', type=bool, required=False,
                         If a line contains greater than 5% of alphabetic characters then remove the line.")
 parser.add_argument('--replace-empty-line-with-previous-data', type=bool, required=False,
                     default=False,
-                    help="If a line contains empty strings then replace the empty string with data from the prevous line")
+                    help="If a line contains empty strings then replace the empty string with data from the previous line")
 parser.add_argument('--remove-empty-line', required=False, type=bool,
                     default=False,
                     help="If a line starts with an empty string then remove the line entirely")
