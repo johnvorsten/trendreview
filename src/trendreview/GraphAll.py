@@ -13,7 +13,7 @@ Logic
 """
 
 # Python imports
-from typing import List, Callable, Dict, MutableMapping
+from typing import List, Callable, Dict, MutableMapping, Union
 import inspect
 import math
 
@@ -31,7 +31,7 @@ HEADERS = ['DateTime',
 TYPES = {'DateTime': object,
          }
 
-chart_properties: Dict[str, str] = {
+chart_properties: Dict[str, Union[int, None, str]] = {
     'color': 'b',  # Blue
     'dash_capstyle': 'butt',  # Doesnt matter with scatter
     'marker': '.',  # point, could also try pixel depending on amount of data
@@ -44,8 +44,7 @@ chart_properties: Dict[str, str] = {
 
 
 class GraphAll:
-    """Collection of rules to check on trended data for dual-duct terminal
-    units"""
+    """Graph data against date and time"""
 
     def __init__(self, filepath: str, parse_dates='DateTime'):
         """Inputs
@@ -61,7 +60,7 @@ class GraphAll:
     def graph_all_data(self,
                        reporter: FDDReporting,
                        independent_axis_name: str = 'DateTime',
-                       dependent_axis_names: List[str] = None,) -> None:
+                       dependent_axis_names: Union[None, List[str]] = None,) -> None:
         """Graph each of dependent axis names versus a specified independent 
         axis
 
@@ -104,7 +103,7 @@ class GraphAll:
             self,
             reporter: FDDReporting,
             independent_axis_name: str = 'DateTime',
-            dependent_axis_names: List[str] = None,
+            dependent_axis_names: Union[None, List[str]] = None,
             chart_properties: MutableMapping[str, str]={}) -> None:
         """Plot multiple dependent variables against a single axis. For example, graph
         multiple variables against time, with both dependent variables appearing on a 

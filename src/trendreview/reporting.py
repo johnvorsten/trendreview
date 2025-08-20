@@ -10,7 +10,7 @@ containing the exceptions data
 """
 
 # Python imports
-from typing import MutableMapping
+from typing import MutableMapping, Any
 import os
 import glob
 import re
@@ -77,7 +77,8 @@ class FDDImageGeneration:
         for dependent_label in dependent_labels:
             y_values = data[dependent_label]
             lines = axes.plot(x_data, y_values,
-                            label=dependent_label, **chart_properties)
+                            label=dependent_label, 
+                            **chart_properties)
 
         axes.legend()
 
@@ -129,6 +130,44 @@ class FDDImageGeneration:
                     pass
 
         return max(fig_numbers)
+    
+    @staticmethod
+    def generate_image_multiple_dependent_axis(
+        x_data:List[Any], y_data1:List[Any], y_data2:List[Any], 
+        x_label:str, y_label1:str, y_label2:str,
+        chart_properties: MutableMapping[str, str]):
+        """Plot an image with two differnet data sets on the dependent axis     
+        inputs
+        -------
+        x_data: List[Any] data to be on the independent axis (usually DateTime)
+        y_data1: List[Any] data to be on the first dependent axis (for example, a number or text)
+        y_data2: List[Any] data to be on the second dependent axis (for example, a number or text)
+        chart_properties: (dict) of mappings for matplotlib style configuration
+        options. See https://matplotlib.org/stable/api/_as_gen/matplotlib.lines.Line2D.html"""
+        
+        # Create the image
+        fig, axes = plt.subplots(1, 1)
+
+        # Set axes x and y label
+        axes.set_xlabel(x_label)
+        ylabel = y_label1 + ", \n" + y_label2
+        axes.set_ylabel(ylabel)
+
+        # Plot the first set of data
+        axes.plot(x_data, y_data1, label=y_label1, **chart_properties)
+        
+        # Plot the second set of data
+        axes2 = axes.twinx()
+        axes2.plot(x_data, y_data2, label=y_label2, **chart_properties)
+
+        axes.legend()
+
+        # Format dates on X axis
+        locator = AutoDateLocator()
+        axes.xaxis.set_major_locator(locator)
+        fig.autofmt_xdate()
+
+        return fig
 
 
 class FDDReporting:
@@ -147,7 +186,7 @@ class FDDReporting:
 
     def log_exception(self, exception: FDDException,
                       create_image: bool = True,
-                      chart_properties: MutableMapping[str, str] = {}):
+                      chart_properties: MutableMapping = {}):
         """Given a specific failure, log the rule broken and give metadata
         on the broken rule
         inputs

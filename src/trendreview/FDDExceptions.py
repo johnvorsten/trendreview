@@ -20,7 +20,7 @@ from typing import List, MutableMapping, Union
 class FDDException(Exception):
     """Base class for exceptions on fault detection and diagnostics"""
 
-    def __init__(self, message: str, data: MutableMapping[str, Union[str, List]]):
+    def __init__(self, message: str, data: MutableMapping):
         """inputs
         -------
         message: (str) error mesage

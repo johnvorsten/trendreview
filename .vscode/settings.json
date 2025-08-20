@@ -19,5 +19,8 @@
     // Unit tests
     "python.testing.autoTestDiscoverOnSaveEnabled": false,
     "python.testing.promptToConfigure": true,
+    "[json]": {
+        "editor.defaultFormatter": "vscode.json-language-features"
+    },
 
 }
