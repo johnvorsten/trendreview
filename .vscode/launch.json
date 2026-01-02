@@ -5,6 +5,7 @@
     "version": "0.2.0",
     "configurations": [
 
+
         {
             "name": "Python: Current File",
             "type": "debugpy",
@@ -31,6 +32,16 @@
             "justMyCode": true, 
             "cwd": "${workspaceFolder}\\src", //Change the current directory to src/ because both scripts and tests are modules under src
             "args": ["${file}"]
+        },
+        {
+            "name": "Python: automate_graphing_with_multiple_primarykey",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": true, 
+            "cwd": "${workspaceFolder}\\src", //Change the current directory to src/ because both scripts and tests are modules under src
+            "args": ["--input-file", "${workspaceFolder}/data/automate_graphing_with_multiple_primarykey_testcsv.csv"]
         }
     ]
 }
